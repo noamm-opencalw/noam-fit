@@ -312,15 +312,19 @@ const BASE = {floorPress:{kg:18},fly:{kg:10},curl:{kg:11.5},hammer:{kg:11.5},ohT
 /* ---------- Weekly plan (0 = Sunday) ---------- */
 const P = (id,sets,lo,hi,rest)=>({id,sets,lo,hi,rest});
 const PLAN = [
-  {d:"ראשון",s:"א",title:"חזה + כתפיים",sub:"חזה כבד, חזה עליון, הרחקות, טרייספס",warm:"upper",ex:[P("floorPress",4,6,10,120),P("bandIncline",3,10,15,75),P("fly",3,10,15,75),P("lateral",4,12,20,45),P("kickback",3,10,15,45),P("diamond",2,6,15,60),P("facePull",2,15,20,45)]},
-  {d:"שני",s:"ב",title:"גב + בייספס",sub:"משיכה, יציבה וכתף בריאה",warm:"upper",ex:[P("bentRow",4,8,12,120),P("oneArmRow",3,10,12,90),P("rearFly",3,12,15,45),P("facePull",3,15,20,45),P("curl",3,8,12,60),P("hammer",3,10,12,60)]},
-  {d:"שלישי",s:"ג",title:"רגליים + בטן",sub:"השרירים הגדולים שורפים הכי הרבה",warm:"lower",ex:[P("gobletSquat",4,10,15,120),P("rdl",4,8,12,120),P("revLunge",3,8,12,90),P("glute",3,12,15,60),P("calf",3,15,20,45),P("deadBug",3,8,12,45),P("legRaise",3,10,15,45)]},
-  {d:"רביעי",s:"ד",title:"התאוששות פעילה",sub:"8,000 צעדים + ניידות כתף",rest:true,ex:[P("extRot",2,12,15,30),P("facePull",2,15,20,30),P("plank",3,30,45,45)],
+  {k:"A",d:"ראשון",s:"א",title:"חזה + כתפיים",sub:"חזה כבד, חזה עליון, הרחקות, טרייספס",warm:"upper",ex:[P("floorPress",4,6,10,120),P("bandIncline",3,10,15,75),P("fly",3,10,15,75),P("lateral",4,12,20,45),P("kickback",3,10,15,45),P("diamond",2,6,15,60),P("facePull",2,15,20,45)]},
+  {k:"B",d:"שני",s:"ב",title:"גב + בייספס",sub:"משיכה, יציבה וכתף בריאה",warm:"upper",ex:[P("bentRow",4,8,12,120),P("oneArmRow",3,10,12,90),P("rearFly",3,12,15,45),P("facePull",3,15,20,45),P("curl",3,8,12,60),P("hammer",3,10,12,60)]},
+  {k:"C",d:"שלישי",s:"ג",title:"רגליים + בטן",sub:"השרירים הגדולים שורפים הכי הרבה",warm:"lower",ex:[P("gobletSquat",4,10,15,120),P("rdl",4,8,12,120),P("revLunge",3,8,12,90),P("glute",3,12,15,60),P("calf",3,15,20,45),P("deadBug",3,8,12,45),P("legRaise",3,10,15,45)]},
+  {k:"D",d:"רביעי",s:"ד",title:"התאוששות פעילה",sub:"8,000 צעדים + ניידות כתף",rest:true,ex:[P("extRot",2,12,15,30),P("facePull",2,15,20,30),P("plank",3,30,45,45)],
     list:["הליכה 8,000 צעדים","מתיחת חזה בפתח דלת 2×30 ש׳","פתיחת כתפיים עם מקל או מגבת ×10","חתול־פרה ×10","מתיחת ירך אחורית 2×30 ש׳"]},
-  {d:"חמישי",s:"ה",title:"חזה עליון + ידיים",sub:"היפרטרופיה, כל דחיפה מאוזנת במשיכה",warm:"upper",ex:[P("declinePush",3,8,15,75),P("oneArmRow",3,8,12,75),P("floorPress",3,10,12,90),P("bandRow",3,12,15,60),P("bandFly",3,12,15,45),P("lateral",3,12,20,45),P("curl",3,10,12,45),P("closeGrip",3,8,12,60)]},
-  {d:"שישי",s:"ו",title:"גוף מלא + בטן",sub:"35–40 דקות, מנוחות קצרות",warm:"lower",ex:[P("gobletSquat",3,12,15,60),P("bentRow",3,10,12,60),P("pushup",3,8,20,60),P("rdl",3,10,12,60),P("lateral",3,15,20,40),P("russian",3,12,20,40),P("legRaise",3,10,15,40)]},
-  {d:"שבת",s:"ש",title:"מנוחה",sub:"התאוששות מלאה",rest:true,ex:[],list:["שינה של 7–8 שעות","חלבון 130–150 גרם","הליכה קלה לפי חשק"]}
+  {k:"E",d:"חמישי",s:"ה",title:"חזה עליון + ידיים",sub:"היפרטרופיה, כל דחיפה מאוזנת במשיכה",warm:"upper",ex:[P("declinePush",3,8,15,75),P("oneArmRow",3,8,12,75),P("floorPress",3,10,12,90),P("bandRow",3,12,15,60),P("bandFly",3,12,15,45),P("lateral",3,12,20,45),P("curl",3,10,12,45),P("closeGrip",3,8,12,60)]},
+  {k:"F",d:"שבת",s:"ש",title:"גוף מלא + בטן",sub:"35–40 דקות, מנוחות קצרות",warm:"lower",ex:[P("gobletSquat",3,12,15,60),P("bentRow",3,10,12,60),P("pushup",3,8,20,60),P("rdl",3,10,12,60),P("lateral",3,15,20,40),P("russian",3,12,20,40),P("legRaise",3,10,15,40)]},
+  {k:"R",d:"שישי",s:"ו",title:"מנוחה",sub:"התאוששות מלאה",rest:true,ex:[],list:["שינה של 7–8 שעות","חלבון 130–150 גרם","הליכה קלה לפי חשק"]}
 ];
+{ const i=PLAN.findIndex(p=>p.k==="F"), j=PLAN.findIndex(p=>p.k==="R"); [PLAN[i],PLAN[j]]=[PLAN[j],PLAN[i]]; } // Fri = rest, Sat = full body
+const OLD_ORDER=["A","B","C","D","E","F","R"]; // plan order before Oct 2026 (Fri full body, Sat rest)
+const dayOf = w => { const k = w.pk || OLD_ORDER[w.day]; const i = PLAN.findIndex(p=>p.k===k); return i<0 ? w.day : i; };
+const DAYN = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
 const WARM = {
   upper:["סיבובי כתפיים 30 ש׳","סיבוב חיצוני בגומייה ×12 לכל יד","פייס־פול קל ×15","לחיצה קלה 8 ק״ג ×12","פרפר גומייה ירוקה ×10","מתיחת חזה 20 ש׳ לכל צד"],
   lower:["הליכה במקום / קפיצות קלות 60 ש׳","סקוואט משקל גוף ×10","גשר ישבן ×12","מכרע לאחור בלי משקל ×5 לכל רגל","ציר ירכיים עם מקל ×10"]
@@ -535,7 +539,7 @@ function trend(id){
 }
 function weekDoneDays(){
   const ws=weekStart(); const set=new Set();
-  S.history.forEach(w=>{ const d=new Date(w.start); if(d>=ws) set.add(d.getDay()); });
+  S.history.forEach(w=>{ const d=new Date(w.start); if(d>=ws) set.add(dayOf(w)); });
   return set;
 }
 
@@ -573,11 +577,11 @@ function viewToday(){
   const t=todayIdx(), d=PLAN[S.day], done=weekDoneDays();
   const todayStr=new Date().toDateString();
   const week = PLAN.map((p,i)=>`<button class="wd ${i===t?"today":""} ${done.has(i)?"done":""} ${p.rest?"rest":""}" data-act="day" data-i="${i}" aria-pressed="${i===S.day}"><span class="l">${p.s}׳</span><span style="font-size:11px">${p.rest?"מנוחה":esc(p.title.split(" ")[0])}</span><span class="s"></span></button>`).join("");
-  let html = `<h1>${S.day===t?"היום: ":"יום "+d.d+": "}${esc(d.title)}</h1><p class="sub">${esc(d.sub)} · ${new Date().toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long"})}</p><div class="week">${week}</div>`;
+  let html = `<h1>${S.day===t?"היום: ":"יום "+d.d+": "}${esc(d.title)}</h1><p class="sub">${esc(d.sub)} · ${new Date().toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long"})}</p><div class="week">${week}</div><p class="muted" style="font-size:13px;margin:6px 2px 0">מתאמן היום אימון של יום אחר? הקש על היום ברצועה והתחל. זה נרשם כהחלפת יום.</p>`;
 
   if(S.active){
     const a=S.active, sets=a.items.reduce((n,x)=>n+x.sets.length,0);
-    html += `<div class="card stack" style="margin-top:16px;border-color:var(--accent)"><div class="row between"><b>אימון פתוח: ${esc(PLAN[a.day].title)}</b><span class="pill num">${sets} סטים</span></div><button class="btn primary big" data-act="resume">המשך אימון</button></div>`;
+    html += `<div class="card stack" style="margin-top:16px;border-color:var(--accent)"><div class="row between"><b>אימון פתוח: ${esc(PLAN[dayOf(a)].title)}</b><span class="pill num">${sets} סטים</span></div><button class="btn primary big" data-act="resume">המשך אימון</button></div>`;
   }
 
   if(S.day===t) html += protCard();
@@ -598,7 +602,10 @@ function viewToday(){
   html += `<h2>חימום · 2:30</h2><div class="card">${wl.map((x,i)=>{const k="w"+S.day+"_"+i, on=wdone.includes(k);return `<button class="check" role="checkbox" aria-checked="${on}" data-act="chk" data-k="${k}"><span class="box">${on?"✓":""}</span><span>${esc(x)}</span></button>`}).join("")}</div>`;
 
   html += `<h2>תרגילים · ${d.ex.length}</h2><div class="stack">${d.ex.map(exRow).join("")}</div>`;
-  if(!S.active) html += `<div style="margin-top:16px"><button class="btn primary big" style="width:100%" data-act="start">התחל אימון</button></div>`;
+  if(!S.active){
+    const swap = S.day!==t;
+    html += `<div style="margin-top:16px" class="stack">${swap?`<div class="banner">החלפת יום: האימון של יום ${d.d} יירשם כבוצע היום (${DAYN[t]}), ויסומן ✓ על יום ${d.d} ברצועה.</div>`:""}<button class="btn primary big" style="width:100%" data-act="start">${swap?`התחל את אימון ${d.d} היום`:"התחל אימון"}</button></div>`;
+  }
   return html;
 }
 
@@ -666,7 +673,7 @@ function viewProgress(){
   <h2>יעדים יומיים</h2><div class="stat"><div><b>130–150</b><small>גרם חלבון</small></div><div><b>~2,300</b><small>קק״ל</small></div><div><b>8,000</b><small>צעדים</small></div></div>`;
   html += `<h2>היסטוריה</h2><div class="hist">${S.history.length?S.history.slice().reverse().slice(0,30).map(w=>{
       const n=w.items.reduce((a,i)=>a+i.sets.length,0), min=w.end?Math.round((new Date(w.end)-new Date(w.start))/60000):0, open=S.openHist===w.id;
-      return `<div class="hrow"><button style="display:contents" data-act="hist" data-id="${w.id}"><span class="d">${dstr(w.start,{weekday:"short",day:"numeric",month:"numeric"})} · ${esc(PLAN[w.day]?.title||"")}</span><span class="num muted">${n} סטים · ${min} ד׳</span></button>
+      return `<div class="hrow"><button style="display:contents" data-act="hist" data-id="${w.id}"><span class="d">${dstr(w.start,{weekday:"short",day:"numeric",month:"numeric"})} · ${esc(PLAN[dayOf(w)]?.title||"")}${dayOf(w)!==new Date(w.start).getDay()?` <span class="muted">↔ במקום ${DAYN[dayOf(w)]}</span>`:""}</span><span class="num muted">${n} סטים · ${min} ד׳</span></button>
       ${open?`<div class="hdet">${w.items.filter(i=>i.sets.length).map(i=>`<div class="row between"><span>${esc(EX[i.id].heb)}</span><span class="num">${i.sets.map(s=>(s.kg?fmtKg(s.kg)+"×":"")+s.reps).join("  ")}</span></div>`).join("")}${w.shoulder>=1?`<div>כתף: ${w.shoulder===2?"כואבת":"מאותתת"}</div>`:""}
         ${S.confirmDel===w.id?`<div class="confirm"><button class="btn sm danger" data-act="delyes" data-id="${w.id}">מחק לצמיתות</button><button class="btn sm" data-act="delno">ביטול</button></div>`:`<div class="confirm"><button class="btn sm ghost danger" data-act="del" data-id="${w.id}">מחק אימון</button></div>`}</div>`:""}</div>`}).join(""):`<div class="card muted">עוד אין אימונים שמורים. כל סט שתסמן נשמר מיד.</div>`}</div>
   <h2>חשבון וגיבוי</h2><div class="row" style="flex-wrap:wrap">${store.user?`<button class="btn sm" data-act="logout">התנתק</button>`:`<button class="btn sm primary" data-act="login">התחבר לסנכרון</button>`}<button class="btn sm" data-act="export">העתק JSON</button><button class="btn sm" data-act="dl" ${dlOK?"":"hidden"}>הורד קובץ</button></div>`;
@@ -698,7 +705,7 @@ function drawCharts(){
 /* ---------- Workout mode ---------- */
 function startWorkout(){
   const d=PLAN[S.day], now=new Date().toISOString();
-  S.active={id:"w_"+now.replace(/[^0-9]/g,"").slice(0,14),status:"active",start:now,day:S.day,shoulder:S.shoulder.date===new Date().toDateString()?S.shoulder.level:null,
+  S.active={id:"w_"+now.replace(/[^0-9]/g,"").slice(0,14),status:"active",start:now,day:S.day,pk:d.k,swapFrom:S.day!==todayIdx()?todayIdx():null,shoulder:S.shoulder.date===new Date().toDateString()?S.shoulder.level:null,
     cur:0,items:d.ex.map(p=>{const id=resolveEx(p.id);return {id,plan:p,sets:[]};})};
   primeDraft(); saveWorkout(S.active); askWake(); render();
 }
