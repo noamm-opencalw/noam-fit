@@ -306,8 +306,8 @@ const GRP = {chest:"חזה",side:"כתפיים",back:"גב",rear:"כתף אחו�
 const GRP_TARGET = {chest:[14,24],side:[8,16],back:[10,20],rear:[6,12],legs:[10,20],biceps:[6,12],triceps:[6,12],core:[6,12]};
 
 // Starting points from your export (last_weight); "est" = estimate, calibrate on the first set
-const BASE = {floorPress:{kg:17.5},fly:{kg:10},curl:{kg:12.5},hammer:{kg:12.5},ohTriceps:{kg:15},gobletSquat:{kg:20},rdl:{kg:17.5},revLunge:{kg:10},russian:{kg:7.5},
-  kickback:{kg:7.5,est:1},lateral:{kg:5,est:1},closeGrip:{kg:15,est:1},bentRow:{kg:15,est:1},oneArmRow:{kg:17.5,est:1},rearFly:{kg:5,est:1},glute:{kg:20,est:1},calf:{kg:15,est:1}};
+const BASE = {floorPress:{kg:18},fly:{kg:10},curl:{kg:11.5},hammer:{kg:11.5},ohTriceps:{kg:16},gobletSquat:{kg:20.5},rdl:{kg:18},revLunge:{kg:10},russian:{kg:8},
+  kickback:{kg:8,est:1},lateral:{kg:4.5,est:1},closeGrip:{kg:16,est:1},bentRow:{kg:16,est:1},oneArmRow:{kg:18,est:1},rearFly:{kg:4.5,est:1},glute:{kg:20.5,est:1},calf:{kg:16,est:1}};
 
 /* ---------- Weekly plan (0 = Sunday) ---------- */
 const P = (id,sets,lo,hi,rest)=>({id,sets,lo,hi,rest});
@@ -322,15 +322,19 @@ const PLAN = [
   {d:"שבת",s:"ש",title:"מנוחה",sub:"התאוששות מלאה",rest:true,ex:[],list:["שינה של 7–8 שעות","חלבון 130–150 גרם","הליכה קלה לפי חשק"]}
 ];
 const WARM = {
-  upper:["סיבובי כתפיים 30 ש׳","סיבוב חיצוני בגומייה ×12 לכל יד","פייס־פול קל ×15","לחיצה קלה 7.5 ק״ג ×12","פרפר גומייה ירוקה ×10","מתיחת חזה 20 ש׳ לכל צד"],
+  upper:["סיבובי כתפיים 30 ש׳","סיבוב חיצוני בגומייה ×12 לכל יד","פייס־פול קל ×15","לחיצה קלה 8 ק״ג ×12","פרפר גומייה ירוקה ×10","מתיחת חזה 20 ש׳ לכל צד"],
   lower:["הליכה במקום / קפיצות קלות 60 ש׳","סקוואט משקל גוף ×10","גשר ישבן ×12","מכרע לאחור בלי משקל ×5 לכל רגל","ציר ירכיים עם מקל ×10"]
 };
 
 /* ---------- Helpers ---------- */
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const r25 = x => Math.round(x/2.5)*2.5;
-const fmtKg = x => (x%1===0? x : x.toFixed(1));
+const DBW = [2.5,3.5,4.5,5.5,6.5,8,9,10,11.5,13.5,16,18,20.5,22.5,24]; // available dumbbells (kg)
+const MAXW = DBW[DBW.length-1];
+const snapKg = x => DBW.reduce((a,b)=>Math.abs(b-x)<Math.abs(a-x)?b:a);
+const stepKg = (x,dir) => { const i=DBW.indexOf(snapKg(x)); return DBW[Math.max(0,Math.min(DBW.length-1,i+dir))]; };
+const r25 = snapKg;
+const fmtKg = x => (+x%1===0? +x : (+x).toFixed(1));
 const todayIdx = () => new Date().getDay();
 const dstr = (iso,opt) => new Date(iso).toLocaleDateString("he-IL",opt||{day:"numeric",month:"numeric"});
 const weekStart = (d=new Date()) => { const x=new Date(d); x.setHours(0,0,0,0); x.setDate(x.getDate()-x.getDay()); return x; };
@@ -486,7 +490,7 @@ function recommend(id, plan){
   let r={kg:null,band:null,reps:plan.lo,why:""};
   if(ex.type==="band") r.band = last ? (last.sets.at(-1).band||BANDS[1]) : (id==="pullApart"?BANDS[2]:id==="extRot"||id==="bandFly"?BANDS[0]:BANDS[1]);
   if(!last){
-    if(ex.type==="db"){ const b=BASE[id]; r.kg=b?b.kg:7.5; r.why = b&&!b.est ? "נקודת פתיחה מהנתונים האחרונים שלך" : "הערכה. כייל בסט הראשון: אמור להישאר 1–2 חזרות ברזרבה"; }
+    if(ex.type==="db"){ const b=BASE[id]; r.kg=snapKg(b?b.kg:8); r.why = b&&!b.est ? "נקודת פתיחה מהנתונים האחרונים שלך" : "הערכה. כייל בסט הראשון: אמור להישאר 1–2 חזרות ברזרבה"; }
     else r.why="סט ראשון: עצור כשנשארות 1–2 חזרות ברזרבה";
     return sore(r,ex);
   }
@@ -496,12 +500,12 @@ function recommend(id, plan){
   const below = reps.filter(x=>x<plan.lo).length >= Math.ceil(last.sets.length/2);
   const prevBelow = hist[1] && hist[1].sets.filter(s=>s.reps<plan.lo).length >= Math.ceil(hist[1].sets.length/2);
   if(ex.type==="db"){
-    r.kg=lastKg;
-    if(allTop && lastKg<24){ r.kg=Math.min(24,lastKg+2.5); r.reps=plan.lo; r.why=`<b>+2.5 ק״ג.</b> כל הסטים הגיעו ל־${plan.hi}. התחל שוב מ־${plan.lo} חזרות`; }
-    else if(below && prevBelow){ r.kg=Math.max(2.5,lastKg-2.5); r.reps=plan.lo; r.why="<b>−2.5 ק״ג.</b> שני אימונים מתחת לטווח. בונים מחדש"; }
+    r.kg=snapKg(lastKg);
+    if(allTop && r.kg<MAXW){ r.kg=stepKg(r.kg,1); r.reps=plan.lo; r.why=`<b>משקולת הבאה: ${fmtKg(r.kg)} ק״ג.</b> כל הסטים הגיעו ל־${plan.hi}. התחל שוב מ־${plan.lo} חזרות`; }
+    else if(below && prevBelow){ r.kg=stepKg(r.kg,-1); r.reps=plan.lo; r.why=`<b>משקולת קודמת: ${fmtKg(r.kg)} ק״ג.</b> שני אימונים מתחת לטווח. בונים מחדש`; }
     else if(below){ r.reps=plan.lo; r.why=`<b>אותו משקל.</b> מטרה: ${plan.lo} חזרות בכל הסטים`; }
     else { r.reps=Math.min(plan.hi,minR+1); r.why=`<b>אותו משקל, +1 חזרה</b> בסט החלש (היה ${minR})`; }
-    if(allTop && lastKg>=24){ r.why="<b>הגעת ל־24 ק״ג.</b> הוסף סט, או האט ירידה ל־4 שניות"; r.reps=plan.hi; }
+    if(allTop && snapKg(lastKg)>=MAXW){ r.why="<b>הגעת ל־24 ק״ג.</b> הוסף סט, או האט ירידה ל־4 שניות"; r.reps=plan.hi; }
   } else if(ex.type==="band"){
     r.reps=Math.min(plan.hi,minR+1);
     r.why = allTop ? "<b>הגעת לתקרה.</b> עבור לגומייה קשה יותר או צעד רחוק יותר מהעוגן" : `<b>אותה גומייה, +1 חזרה</b> (היה ${minR})`;
@@ -512,7 +516,7 @@ function recommend(id, plan){
   return sore(r,ex);
 }
 function sore(r,ex){
-  if(shLevel()>=1 && ex.risky && ex.shoulder){ if(shoulderSore() && r.kg) r.kg=Math.max(2.5,r25(r.kg*0.85)); r.why += ` · <b>כתף:</b> ${ex.shoulder}`; }
+  if(shLevel()>=1 && ex.risky && ex.shoulder){ if(shoulderSore() && r.kg) r.kg=stepKg(r.kg,-1); r.why += ` · <b>כתף:</b> ${ex.shoulder}`; }
   return r;
 }
 function lastSummary(id){
@@ -612,7 +616,7 @@ function viewPlan(){
       <div style="margin-top:8px;font-size:15px;display:grid;gap:2px">${d.ex.map(p=>`<div class="row between"><span>${esc(EX[p.id].heb)}</span><span class="num muted">${p.sets}×${p.lo}–${p.hi}</span></div>`).join("") || (d.list||[]).map(x=>`<div class="muted">${esc(x)}</div>`).join("")}</div>
     </button></div>`).join("") + `</div>
   <h2>כללי התקדמות</h2><div class="card" style="font-size:15px">
-    <p style="margin:0 0 6px"><b>התקדמות כפולה:</b> מגיעים לראש טווח החזרות בכל הסטים, ורק אז מוסיפים 2.5 ק״ג.</p>
+    <p style="margin:0 0 6px"><b>התקדמות כפולה:</b> מגיעים לראש טווח החזרות בכל הסטים, ורק אז עולים למשקולת הבאה (2.5 · 3.5 · 4.5 · 5.5 · 6.5 · 8 · 9 · 10 · 11.5 · 13.5 · 16 · 18 · 20.5 · 22.5 · 24).</p>
     <p style="margin:0 0 6px"><b>רזרבה:</b> רוב הסטים מסתיימים כשנשארות 1–2 חזרות. סט אחרון של תרגיל יכול להגיע לכשל.</p>
     <p style="margin:0"><b>שבוע הורדת עומס:</b> כל 6 שבועות, אותם משקלים ובחצי מהסטים.</p></div>`;
   return html;
@@ -713,7 +717,7 @@ function renderWorkout(){
   const hero = ex.img ? `<div class="hero"><img src="${IMG[ex.img]}" alt=""><button class="how" data-act="how" data-id="${it.id}">איך מבצעים?</button><div class="ov"><h3>${esc(ex.heb)}</h3><div style="opacity:.85;font-size:14px">${esc(ex.en)}</div></div></div>`
     : `<div class="hero noimg"><button class="how" data-act="how" data-id="${it.id}">איך מבצעים?</button><div class="ov"><h3>${esc(ex.heb)}</h3><div class="muted" style="font-size:14px">${esc(ex.en)}</div></div></div>`;
   const loadCtl = ex.type==="db"
-    ? `<div class="stp"><label for="kgIn">ק״ג ${ex.dbOne?"(משקולת אחת)":"ליד"}</label><div class="ctl" dir="ltr"><button data-act="kg" data-d="-2.5" aria-label="פחות משקל">−</button><input id="kgIn" class="num" inputmode="decimal" value="${fmtKg(dr.kg||0)}"><button data-act="kg" data-d="2.5" aria-label="יותר משקל">+</button></div></div>`
+    ? `<div class="stp"><label for="kgIn">ק״ג ${ex.dbOne?"(משקולת אחת)":"ליד"}</label><div class="ctl" dir="ltr"><button data-act="kg" data-d="-1" aria-label="משקולת קלה יותר">−</button><input id="kgIn" class="num" inputmode="decimal" value="${fmtKg(dr.kg||0)}"><button data-act="kg" data-d="1" aria-label="משקולת כבדה יותר">+</button></div></div>`
     : ex.type==="band" ? `<div class="stp"><label>גומייה</label><div class="bands" style="margin-top:6px">${BANDS.map(b=>`<button class="chip" style="justify-content:center;font-size:13px;padding:4px" data-act="band" data-b="${esc(b)}" aria-pressed="${dr.band===b}">${esc(b)}</button>`).join("")}</div></div>`
     : `<div class="stp" style="display:grid;place-items:center;text-align:center"><label>משקל גוף</label><div class="muted" style="font-size:14px">יעד ${p.lo}–${p.hi} ${unitOf(ex)}</div></div>`;
   const step = ex.type==="time"?5:1;
@@ -829,7 +833,7 @@ document.addEventListener("click",e=>{
     case "minimize": readInputs(); A.open=false; persistLocal(); render(); break;
     case "how": openHow(b.dataset.id); break;
     case "closesheet": $("#sheet").hidden=true; break;
-    case "kg": readInputs(); A.draft.kg=Math.max(0,Math.min(48,(+A.draft.kg||0)+ +b.dataset.d)); renderWorkout(); break;
+    case "kg": readInputs(); { const cur=+A.draft.kg||0, d=+b.dataset.d; const sn=snapKg(cur); A.draft.kg = cur===0&&d>0 ? DBW[0] : (sn!==cur ? (d>0? (DBW.find(w=>w>cur)||MAXW) : ([...DBW].reverse().find(w=>w<cur)||DBW[0])) : stepKg(cur,d>0?1:-1)); } renderWorkout(); break;
     case "reps": readInputs(); A.draft.reps=Math.max(0,(+A.draft.reps||0)+ +b.dataset.d); renderWorkout(); break;
     case "band": A.draft.band=b.dataset.b; readInputs(); renderWorkout(); break;
     case "rir": readInputs(); A.draft.rir = A.draft.rir===+b.dataset.v?null:+b.dataset.v; renderWorkout(); break;
