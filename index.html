@@ -326,8 +326,8 @@ Object.assign(EX,{
   negPull:{heb:"עליות מתח שליליות",en:"Negative Chin-up",type:"bw",grp:"back",vid:YTS("negative chin up slow eccentric"),
     cues:["אחיזה צרה, כפות אליך","קפוץ או עלה מכיסא לנקודה העליונה, סנטר מעל המוט","רד לאט במשך 3–5 שניות עד ידיים כמעט ישרות. שכמות נשארות מהודקות"],
     errs:["נפילה מהירה בסוף","תלייה רפויה בתחתית"],shoulder:"עצור לפני יישור מלא של הידיים"},
-  chinup:{heb:"עליות מתח באחיזה צרה",en:"Close-grip Chin-up",type:"bw",grp:"back",vid:YTS("close grip chin up form"),
-    cues:["אחיזה צרה מרוחב הכתפיים, כפות אליך. זו האחיזה הידידותית ביותר לכתף","התחל בהורדת השכמות, ואז משוך את המרפקים לצלעות","סנטר מעל המוט, ירידה של 2–3 שניות. אפשר גומייה לעזרה"],
+  chinup:{heb:"עליות מתח בעזרת גומייה",en:"Band-assisted Close-grip Chin-up",type:"band",assist:true,grp:"back",vid:YTS("close grip chin up form"),
+    cues:["אחיזה צרה מרוחב הכתפיים, כפות אליך. זו האחיזה הידידותית ביותר לכתף","התחל בהורדת השכמות, ואז משוך את המרפקים לצלעות","גומייה ירוקה קשורה למוט, ברך או כף רגל בתוכה","סנטר מעל המוט, ירידה של 2–3 שניות","החזרה האחרונה בכל סט: בלי גומייה, אם אפשר"],
     errs:["תלייה רפויה בתחתית","נדנוד ובעיטות"],shoulder:"עבור לשליליות או לגומייה עבה יותר",risky:true},
   scaption:{heb:"הרמה במישור השכמה",en:"Scaption to 90°",type:"db",grp:"rehab",vid:YTS("scaption exercise shoulder rehab"),
     cues:["ידיים ב־30° לפני הגוף, אגודלים למעלה","הרם עד גובה הכתף בלבד","ירידה של 3 שניות. משקל קל"],errs:["הרמה מעל הכתף","משיכת כתפיים"]}
@@ -370,7 +370,7 @@ const BASE = {floorPress:{kg:18},fly:{kg:10},curl:{kg:11.5},hammer:{kg:11.5},ohT
 /* ---------- Weekly plan (0 = Sunday) ---------- */
 const PLAN = [
   {k:"A",d:"ראשון",s:"א",title:"חזה + כתפיים",sub:"חזה כבד, חזה עליון, הרחקות, טרייספס",warm:"upper",ex:[P("floorPress",4,6,10,120),P("bandIncline",3,10,15,75),P("fly",3,10,15,75),P("lateral",4,12,20,45),P("kickback",3,10,15,45),P("diamond",2,6,15,60),P("facePull",2,15,20,45)]},
-  {k:"B",d:"שני",s:"ב",title:"גב + בייספס",sub:"משיכה, יציבה וכתף בריאה",warm:"upper",ex:[P("chinup",3,4,8,120),P("bentRow",4,8,12,120),P("oneArmRow",3,10,12,90),P("rearFly",3,12,15,45),P("facePull",3,15,20,45),P("curl",3,8,12,60),P("hammer",3,10,12,60)]},
+  {k:"B",d:"שני",s:"ב",title:"גב + בייספס",sub:"משיכה, יציבה וכתף בריאה",warm:"upper",ex:[P("chinup",3,3,6,120),P("bentRow",4,8,12,120),P("oneArmRow",3,10,12,90),P("rearFly",3,12,15,45),P("facePull",3,15,20,45),P("curl",3,8,12,60),P("hammer",3,10,12,60)]},
   {k:"C",d:"שלישי",s:"ג",title:"רגליים + בטן",sub:"השרירים הגדולים שורפים הכי הרבה",warm:"lower",ex:[P("gobletSquat",4,10,15,120),P("rdl",4,8,12,120),P("revLunge",3,8,12,90),P("glute",3,12,15,60),P("calf",3,15,20,45),P("deadBug",3,8,12,45),P("legRaise",3,10,15,45)]},
   {k:"D",d:"רביעי",s:"ד",title:"התאוששות פעילה",sub:"8,000 צעדים + ניידות כתף",rest:true,ex:[P("extRot",2,12,15,30),P("facePull",2,15,20,30),P("plank",3,30,45,45)],
     list:["הליכה 8,000 צעדים","מתיחת חזה בפתח דלת 2×30 ש׳","פתיחת כתפיים עם מקל או מגבת ×10","חתול־פרה ×10","מתיחת ירך אחורית 2×30 ש׳"]},
@@ -551,7 +551,7 @@ function resolveEx(id){ const ex=EX[id]; if(shLevel()>=1 && ex.alt) return ex.al
 function recommend(id, plan){
   const ex=EX[id], hist=lastSessions(id,2), last=hist[0];
   let r={kg:null,band:null,reps:plan.lo,why:""};
-  if(ex.type==="band") r.band = last ? (last.sets.at(-1).band||BANDS[1]) : (id==="pullApart"?BANDS[2]:id==="extRot"||id==="bandFly"?BANDS[0]:BANDS[1]);
+  if(ex.type==="band") r.band = last ? (last.sets.at(-1).band||BANDS[1]) : (id==="pullApart"?BANDS[2]:id==="extRot"||id==="bandFly"||id==="chinup"?BANDS[0]:BANDS[1]);
   if(!last){
     if(ex.type==="db"){ const b=BASE[id]; r.kg=snapKg(b?b.kg:8); r.why = b&&!b.est ? "נקודת פתיחה מהנתונים האחרונים שלך" : "הערכה. כייל בסט הראשון: אמור להישאר 1–2 חזרות ברזרבה"; }
     else r.why="סט ראשון: עצור כשנשארות 1–2 חזרות ברזרבה";
@@ -571,7 +571,7 @@ function recommend(id, plan){
     if(allTop && snapKg(lastKg)>=MAXW){ r.why="<b>הגעת ל־24 ק״ג.</b> הוסף סט, או האט ירידה ל־4 שניות"; r.reps=plan.hi; }
   } else if(ex.type==="band"){
     r.reps=Math.min(plan.hi,minR+1);
-    r.why = allTop ? "<b>הגעת לתקרה.</b> עבור לגומייה קשה יותר או צעד רחוק יותר מהעוגן" : `<b>אותה גומייה, +1 חזרה</b> (היה ${minR})`;
+    r.why = allTop ? (ex.assist ? "<b>הגעת לתקרה.</b> הורד עזרה: רגל אחת מחוץ לגומייה, או סט בלי גומייה" : "<b>הגעת לתקרה.</b> עבור לגומייה קשה יותר או צעד רחוק יותר מהעוגן") : `<b>אותה גומייה, +1 חזרה</b> (היה ${minR})`;
   } else {
     r.reps = allTop ? plan.hi+ (ex.type==="time"?5:1) : Math.min(plan.hi,minR+(ex.type==="time"?5:1));
     r.why = allTop ? "<b>מעל הטווח.</b> האט את הקצב או הוסף משקל" : `<b>יעד: ${r.reps}</b> (בפעם הקודמת ${minR})`;
