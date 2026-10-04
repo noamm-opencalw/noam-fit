@@ -301,16 +301,63 @@ const EX = {
   russian:{heb:"רוסיאן טוויסט",en:"Russian Twist",type:"db",grp:"core",dbOne:true,vid:YTS("russian twist dumbbell form"),
     cues:["גב ישר, נטייה של 45°","סובב את הכתפיים, לא רק את הידיים","חזרות לכל צד"],errs:["גב מעוגל"]}
 };
+Object.assign(EX,{
+  pendulum:{heb:"מטוטלת",en:"Pendulum (Codman)",type:"time",grp:"rehab",vid:YTS("codman pendulum exercise shoulder"),
+    cues:["הישען עם יד בריאה על שולחן, גו מוטה קדימה","תן ליד הכואבת לתלות רפויה לגמרי","צור עיגולים קטנים בעזרת תנועת הגוף, לא השריר. 30 ש׳ לכל כיוון"],errs:["הרמה אקטיבית של היד","עיגולים גדולים שמכאיבים"]},
+  scapSet:{heb:"קירוב והורדת שכמות",en:"Scapular Setting",type:"bw",grp:"rehab",vid:YTS("scapular setting exercise retraction depression"),
+    cues:["עמידה או ישיבה זקופה","משוך את השכמות אחורה ולמטה, לכיוון הכיסים האחוריים","החזק 5 שניות, שחרר לאט"],errs:["הרמת כתפיים לאוזניים","קשת בגב התחתון"]},
+  isoER:{heb:"איזומטרי סיבוב חיצוני",en:"Isometric External Rotation",type:"bw",grp:"rehab",vid:YTS("isometric shoulder external rotation wall"),
+    cues:["עמוד בצד לקיר או למשקוף, מרפק צמוד לגוף ב־90°","דחוף את גב כף היד החוצה אל הקיר, בלי שהיד זזה","30–50% מהכוח, החזק 10 שניות. בלי כאב"],errs:["דחיפה חזקה מדי","המרפק מתרחק מהגוף"]},
+  isoIR:{heb:"איזומטרי סיבוב פנימי",en:"Isometric Internal Rotation",type:"bw",grp:"rehab",vid:YTS("isometric shoulder internal rotation doorway"),
+    cues:["עמוד מול משקוף, מרפק צמוד לגוף ב־90°","דחוף את כף היד פנימה אל המשקוף","30–50% מהכוח, החזק 10 שניות"],errs:["סיבוב הגו"]},
+  isoAbd:{heb:"איזומטרי הרחקה",en:"Isometric Abduction",type:"bw",grp:"rehab",vid:YTS("isometric shoulder abduction wall"),
+    cues:["עמוד בצד לקיר, מרפק כפוף 90° וצמוד לגוף","דחוף את המרפק החוצה אל הקיר","30–50% מהכוח, החזק 10 שניות. אם מכאיב: דלג"],errs:["הרמת הכתף"]},
+  sideER:{heb:"סיבוב חיצוני בשכיבה על הצד",en:"Side-lying External Rotation",type:"db",grp:"rehab",vid:YTS("side lying external rotation dumbbell"),
+    cues:["שכב על הצד הבריא, מגבת מגולגלת בין המרפק לגוף","מרפק ב־90°, סובב את האמה למעלה לאט","3 שניות למטה. משקל קל מאוד"],errs:["סיבוב הגו לאחור","משקל כבד"]},
+  proneYT:{heb:"Y-T בשכיבה על הבטן",en:"Prone Y-T Raise",type:"bw",grp:"rehab",vid:YTS("prone Y T raise lower trapezius"),
+    cues:["שכב על הבטן, מצח על מגבת","T: ידיים לצדדים, אגודלים למעלה, הרם עם קירוב שכמות","Y: ידיים באלכסון למעלה (רק אם לא מכאיב), החזק 2 שניות"],errs:["הרמת הראש","הרמת כתפיים לאוזניים"]},
+  serratus:{heb:"פוש־אפ פלוס על הקיר",en:"Wall Push-up Plus",type:"bw",grp:"rehab",vid:YTS("wall push up plus serratus"),
+    cues:["ידיים על הקיר בגובה הכתפיים","בסוף הדחיפה דחוף עוד קצת: השכמות נפרדות והגב העליון מתעגל קלות","החזק 2 שניות"],errs:["שקיעת הראש קדימה"]},
+  wallSlide:{heb:"החלקה על הקיר",en:"Wall Slide",type:"bw",grp:"rehab",vid:YTS("wall slide serratus shoulder rehab"),
+    cues:["אמות על הקיר ברוחב כתפיים","החלק למעלה רק בטווח שלא מכאיב","שכמות למטה, החזק שנייה למעלה"],errs:["עלייה לטווח כואב","קשת בגב"]},
+  scaption:{heb:"הרמה במישור השכמה",en:"Scaption to 90°",type:"db",grp:"rehab",vid:YTS("scaption exercise shoulder rehab"),
+    cues:["ידיים ב־30° לפני הגוף, אגודלים למעלה","הרם עד גובה הכתף בלבד","ירידה של 3 שניות. משקל קל"],errs:["הרמה מעל הכתף","משיכת כתפיים"]}
+});
 const BANDS = ["ירוק","אדידס 2","מותח חזה","ירוק + אדידס"];
-const GRP = {chest:"חזה",side:"כתפיים",back:"גב",rear:"כתף אחורית",legs:"רגליים",biceps:"בייספס",triceps:"טרייספס",core:"ליבה"};
-const GRP_TARGET = {chest:[14,24],side:[8,16],back:[10,20],rear:[6,12],legs:[10,20],biceps:[6,12],triceps:[6,12],core:[6,12]};
+const P = (id,sets,lo,hi,rest)=>({id,sets,lo,hi,rest});
+/* ---------- Shoulder rehab ---------- */
+const REHAB = {
+  1:{name:"הרגעה",weeks:"1–2 שבועות",desc:"מורידים עומס מהמפרק בלי להשבית אותו. בלי לחיצות, בלי הרמות ובלי שום דבר מעל גובה הכתף. משיכות ורגליים ממשיכים כרגיל אם לא מכאיב.",
+    next:"עוברים לשלב 2 כשאין כאב בלילה, והרמת יד ביום־יום כואבת לכל היותר 2 מ־10.",
+    block:[P("pendulum",2,30,60,20),P("scapSet",2,10,10,30),P("isoER",3,5,5,30),P("isoIR",3,5,5,30),P("isoAbd",2,5,5,30),P("extRot",2,12,15,45)]},
+  2:{name:"חיזוק",weeks:"3–4 שבועות",desc:"בונים את השרירים שמייצבים את המפרק: מסובבים חיצוניים, טרפז תחתון וסראטוס. חוזרות לחיצות על הרצפה באחיזה נייטרלית. הרחקות מוחלפות בהרמה במישור השכמה.",
+    next:"עוברים לשלב 3 כשיש טווח מלא בלי כאב, ו־3 סטים של כל תרגיל עוברים בלי שהכאב מתגבר למחרת.",
+    block:[P("sideER",3,12,15,45),P("proneYT",3,10,12,45),P("serratus",3,12,15,45),P("wallSlide",2,8,10,30),P("scaption",3,12,15,45),P("facePull",2,15,20,45)]},
+  3:{name:"חזרה הדרגתית",weeks:"2–3 שבועות",desc:"התוכנית המלאה חוזרת, במצב זהירות של הכתף (אחיזה נייטרלית, מרפקים 45°, הרחקות עד גובה הכתף). תרגילי הייצוב נשארים כחימום בכל אימון עליון.",
+    next:"מסיימים את השיקום כשכל התוכנית רצה שבועיים בלי החמרה. את הייצוב משאירים פעמיים בשבוע.",
+    block:[P("sideER",2,12,15,30),P("proneYT",2,10,12,30),P("serratus",2,12,15,30)]}
+};
+const SHOULDER_HEAVY = new Set(["floorPress","fly","bandPress","bandFly","bandIncline","diamond","pushup","declinePush","ohTriceps","closeGrip","lateral"]);
+function rehabPhase(){ return S.rehab && S.rehab.phase || 0; }
+function dayEx(d){
+  const ph=rehabPhase(); if(!ph || !d.ex.length) return d.ex;
+  let list = d.ex.slice();
+  if(ph===1){ const n=list.length; list = list.filter(p=>!SHOULDER_HEAVY.has(p.id)); if(n-list.length>=3 && !list.some(p=>p.id==="bandRow")) list.unshift(P("bandRow",3,12,15,60)); }
+  else if(ph===2) list = list.filter(p=>!["fly","bandFly","bandIncline","ohTriceps"].includes(p.id))
+      .map(p=>p.id==="lateral"?{...p,id:"scaption"}:["diamond","pushup","declinePush"].includes(p.id)?{...p,id:"serratus",lo:12,hi:15}:p);
+  if(d.rest) return list;
+  const have=new Set(list.map(p=>p.id));
+  const block=REHAB[ph].block.filter(p=>!have.has(p.id));
+  return ph===3 ? (d.warm==="upper" ? [...block,...list] : list) : [...list,...block];
+}
+const GRP = {rehab:"שיקום כתף",chest:"חזה",side:"כתפיים",back:"גב",rear:"כתף אחורית",legs:"רגליים",biceps:"בייספס",triceps:"טרייספס",core:"ליבה"};
+const GRP_TARGET = {rehab:[6,40],chest:[14,24],side:[8,16],back:[10,20],rear:[6,12],legs:[10,20],biceps:[6,12],triceps:[6,12],core:[6,12]};
 
 // Starting points from your export (last_weight); "est" = estimate, calibrate on the first set
 const BASE = {floorPress:{kg:18},fly:{kg:10},curl:{kg:11.5},hammer:{kg:11.5},ohTriceps:{kg:16},gobletSquat:{kg:20.5},rdl:{kg:18},revLunge:{kg:10},russian:{kg:8},
-  kickback:{kg:8,est:1},lateral:{kg:4.5,est:1},closeGrip:{kg:16,est:1},bentRow:{kg:16,est:1},oneArmRow:{kg:18,est:1},rearFly:{kg:4.5,est:1},glute:{kg:20.5,est:1},calf:{kg:16,est:1}};
+  kickback:{kg:8,est:1},lateral:{kg:4.5,est:1},closeGrip:{kg:16,est:1},bentRow:{kg:16,est:1},oneArmRow:{kg:18,est:1},rearFly:{kg:4.5,est:1},sideER:{kg:2.5,est:1},scaption:{kg:2.5,est:1},glute:{kg:20.5,est:1},calf:{kg:16,est:1}};
 
 /* ---------- Weekly plan (0 = Sunday) ---------- */
-const P = (id,sets,lo,hi,rest)=>({id,sets,lo,hi,rest});
 const PLAN = [
   {k:"A",d:"ראשון",s:"א",title:"חזה + כתפיים",sub:"חזה כבד, חזה עליון, הרחקות, טרייספס",warm:"upper",ex:[P("floorPress",4,6,10,120),P("bandIncline",3,10,15,75),P("fly",3,10,15,75),P("lateral",4,12,20,45),P("kickback",3,10,15,45),P("diamond",2,6,15,60),P("facePull",2,15,20,45)]},
   {k:"B",d:"שני",s:"ב",title:"גב + בייספס",sub:"משיכה, יציבה וכתף בריאה",warm:"upper",ex:[P("bentRow",4,8,12,120),P("oneArmRow",3,10,12,90),P("rearFly",3,12,15,45),P("facePull",3,15,20,45),P("curl",3,8,12,60),P("hammer",3,10,12,60)]},
@@ -369,6 +416,7 @@ const S = {
   body: mergeBody(lsGet("nf.body",[])),
   active: lsGet("nf.active",null),   // workout in progress
   shoulder: lsGet("nf.shoulder",{date:"",level:null}),
+  rehab: lsGet("nf.rehab",{phase:1,since:"2026-10-04"}),
   warm: lsGet("nf.warm",{date:"",done:[]}),
   progEx:"floorPress", bodyM:"fat", prot: lsGet("nf.prot",{}), openHist:null, confirmDel:null
 };
@@ -412,6 +460,7 @@ async function pull(){
   const pend=store.outbox, ws=[]; let body=null, act=null, prot=null;
   data.forEach(({id,data:v})=>{ if(id in pend) return;
     if(id==="protein") prot=v.days||{}; else if(id==="body") body=v.entries;
+    else if(id==="rehab"){ S.rehab=v; lsSet("nf.rehab",v); }
     else if(id.startsWith("w_")){ if(v.status==="done") ws.push(v); else act=v; } });
   // keep local-only and pending items
   const ids=new Set(ws.map(w=>w.id));
@@ -485,7 +534,7 @@ function lastSessions(exId,n=10){
   return out;
 }
 const e1rm = s => s.kg ? s.kg*(1+s.reps/30) : s.reps;
-function shLevel(){ return S.shoulder.date===new Date().toDateString() ? S.shoulder.level : null; }
+function shLevel(){ const t = S.shoulder.date===new Date().toDateString() ? S.shoulder.level : null; return rehabPhase()===3 ? Math.max(1, t??0) : t; }
 function shoulderSore(){ return shLevel()>=2; }
 function resolveEx(id){ const ex=EX[id]; if(shLevel()>=1 && ex.alt) return ex.alt; return id; }
 
@@ -539,7 +588,7 @@ function trend(id){
 }
 function weekDoneDays(){
   const ws=weekStart(); const set=new Set();
-  S.history.forEach(w=>{ const d=new Date(w.start); if(d>=ws) set.add(dayOf(w)); });
+  S.history.forEach(w=>{ const d=new Date(w.start); if(d>=ws && w.pk!=="RH") set.add(dayOf(w)); });
   return set;
 }
 
@@ -564,6 +613,23 @@ function exRow(p,idx){
   </button>`;
 }
 
+function rehabCard(d){
+  const ph=rehabPhase(), R_=REHAB[ph];
+  const days = S.rehab.since ? Math.max(0,Math.round((new Date().setHours(0,0,0,0)-new Date(S.rehab.since).setHours(0,0,0,0))/864e5)) : 0;
+  const chips=[["0","כבוי"],["1","1 · הרגעה"],["2","2 · חיזוק"],["3","3 · חזרה"]].map(([v,l])=>`<button class="chip" data-act="rehab" data-v="${v}" aria-pressed="${ph===+v}">${l}</button>`).join("");
+  if(!ph) return `<h2>שיקום כתף</h2><div class="card stack"><div class="chips">${chips}</div></div>`;
+  const rehabDone = S.history.some(w=>w.pk==="RH" && new Date(w.start).toDateString()===new Date().toDateString());
+  return `<h2>שיקום כתף · שלב ${ph}: ${R_.name}</h2><div class="card stack" style="border-color:var(--accent)">
+    <div class="chips">${chips}</div>
+    <div class="muted" style="font-size:13px">יום ${days+1} בשלב · משך משוער ${R_.weeks}</div>
+    <div>${R_.desc}</div>
+    <div class="banner"><b>כלל הכאב:</b> במהלך תרגיל עד 3 מ־10, וחוזר לרמה הרגילה עד הבוקר. יותר מזה: מקצרים טווח או מדלגים, ולא מתאמנים דרך כאב.</div>
+    <div style="font-size:14px"><b>מתי עוברים שלב:</b> ${R_.next}</div>
+    ${d.rest || !dayEx(d).some(p=>REHAB[ph].block.some(b=>b.id===p.id)) ? `<button class="btn ${rehabDone?"":"primary"}" data-act="rehabgo">${rehabDone?"✓ בוצע היום · עוד סבב":"התחל סבב שיקום (10–12 דק׳)"}</button>` : `<div class="muted" style="font-size:13px">תרגילי השיקום כבר בתוך האימון של היום.</div>`}
+    ${ph===1?`<div class="muted" style="font-size:13px">בשלב הזה כדאי סבב בכל יום, גם בימי מנוחה. אפשר פעמיים ביום.</div>`:""}
+    <details><summary class="muted" style="cursor:pointer">מתי לפנות לבדיקה</summary><div style="font-size:14px;margin-top:6px">כאב שמעיר בלילה · חולשה בהרמת היד · נימול או עקצוץ ביד · הכאב התחיל אחרי נפילה או מכה · אין שיפור אחרי 2–3 שבועות. כאב סביב המפרק בהרמת היד מעל הראש שחוזר שנים כדאי לבדוק אצל פיזיותרפיסט, שיתאים את התרגילים בדיוק לבעיה.</div></details>
+  </div>`;
+}
 function protCard(){
   const items=S.prot[dkey()]||[], g=items.reduce((a,x)=>a+x[1],0), pct=Math.min(100,g/PROT_GOAL*100);
   return `<h2>חלבון היום</h2><div class="card stack">
@@ -577,14 +643,15 @@ function viewToday(){
   const t=todayIdx(), d=PLAN[S.day], done=weekDoneDays();
   const todayStr=new Date().toDateString();
   const week = PLAN.map((p,i)=>`<button class="wd ${i===t?"today":""} ${done.has(i)?"done":""} ${p.rest?"rest":""}" data-act="day" data-i="${i}" aria-pressed="${i===S.day}"><span class="l">${p.s}׳</span><span style="font-size:11px">${p.rest?"מנוחה":esc(p.title.split(" ")[0])}</span><span class="s"></span></button>`).join("");
-  let html = `<h1>${S.day===t?"היום: ":"יום "+d.d+": "}${esc(d.title)}</h1><p class="sub">${esc(d.sub)} · ${new Date().toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long"})}</p><div class="week">${week}</div><p class="muted" style="font-size:13px;margin:6px 2px 0">מתאמן היום אימון של יום אחר? הקש על היום ברצועה והתחל. זה נרשם כהחלפת יום.</p>`;
+  let html = `<h1>${S.day===t?"היום: ":"יום "+d.d+": "}${esc(d.title)}${rehabPhase()&&!d.rest?` <span class="pill down" style="font-size:13px;vertical-align:middle">שיקום · שלב ${rehabPhase()}</span>`:""}</h1><p class="sub">${esc(d.sub)} · ${new Date().toLocaleDateString("he-IL",{weekday:"long",day:"numeric",month:"long"})}</p><div class="week">${week}</div><p class="muted" style="font-size:13px;margin:6px 2px 0">מתאמן היום אימון של יום אחר? הקש על היום ברצועה והתחל. זה נרשם כהחלפת יום.</p>`;
 
   if(S.active){
     const a=S.active, sets=a.items.reduce((n,x)=>n+x.sets.length,0);
-    html += `<div class="card stack" style="margin-top:16px;border-color:var(--accent)"><div class="row between"><b>אימון פתוח: ${esc(PLAN[dayOf(a)].title)}</b><span class="pill num">${sets} סטים</span></div><button class="btn primary big" data-act="resume">המשך אימון</button></div>`;
+    html += `<div class="card stack" style="margin-top:16px;border-color:var(--accent)"><div class="row between"><b>אימון פתוח: ${esc(a.pk==="RH"?"שיקום כתף":PLAN[dayOf(a)].title)}</b><span class="pill num">${sets} סטים</span></div><button class="btn primary big" data-act="resume">המשך אימון</button></div>`;
   }
 
   if(S.day===t) html += protCard();
+  html += rehabCard(d);
   if(d.rest){
     html += `<h2>היום</h2><div class="card">${(d.list||[]).map((x,i)=>{const k="r"+S.day+"_"+i;const on=S.warm.date===todayStr&&S.warm.done.includes(k);return `<button class="check" role="checkbox" aria-checked="${on}" data-act="chk" data-k="${k}"><span class="box">${on?"✓":""}</span><span>${esc(x)}</span></button>`}).join("")}</div>`;
     if(d.ex.length) html += `<h2>תרגילים קלים</h2><div class="stack">${d.ex.map(exRow).join("")}</div>${S.active?"":`<div style="margin-top:12px"><button class="btn" style="width:100%" data-act="start">התחל סשן התאוששות</button></div>`}`;
@@ -597,11 +664,12 @@ function viewToday(){
     ${lv===2?`<div class="banner">התאמתי את האימון: תרגילים מעל הראש הוחלפו, לחיצות ב־15% פחות ובאחיזה נייטרלית. כאב חד או שנמשך מעל שבועיים: כדאי פיזיותרפיסט.</div>`:lv===1?`<div class="banner">מצב זהירות: שכיבות יהלום ומוגבהות הוחלפו ברגילות, לחיצות באחיזה נייטרלית ומרפקים 45°, הרחקות עד גובה הכתף. המשקלים לא יורדים. אם מופיע כאב באמצע סט, סמן "כואב".</div>`:""}</div>`;
 
   // warmup
-  const wl=WARM[d.warm]||[];
+  const wl=(WARM[d.warm]||[]).filter(x=> rehabPhase()!==1 || !/לחיצה קלה|פרפר גומייה/.test(x));
   const wdone = S.warm.date===todayStr ? S.warm.done : [];
   html += `<h2>חימום · 2:30</h2><div class="card">${wl.map((x,i)=>{const k="w"+S.day+"_"+i, on=wdone.includes(k);return `<button class="check" role="checkbox" aria-checked="${on}" data-act="chk" data-k="${k}"><span class="box">${on?"✓":""}</span><span>${esc(x)}</span></button>`}).join("")}</div>`;
 
-  html += `<h2>תרגילים · ${d.ex.length}</h2><div class="stack">${d.ex.map(exRow).join("")}</div>`;
+  const exl=dayEx(d);
+  html += `<h2>תרגילים · ${exl.length}</h2><div class="stack">${exl.map(exRow).join("")}</div>`;
   if(!S.active){
     const swap = S.day!==t;
     html += `<div style="margin-top:16px" class="stack">${swap?`<div class="banner">החלפת יום: האימון של יום ${d.d} יירשם כבוצע היום (${DAYN[t]}), ויסומן ✓ על יום ${d.d} ברצועה.</div>`:""}<button class="btn primary big" style="width:100%" data-act="start">${swap?`התחל את אימון ${d.d} היום`:"התחל אימון"}</button></div>`;
@@ -673,7 +741,7 @@ function viewProgress(){
   <h2>יעדים יומיים</h2><div class="stat"><div><b>130–150</b><small>גרם חלבון</small></div><div><b>~2,300</b><small>קק״ל</small></div><div><b>8,000</b><small>צעדים</small></div></div>`;
   html += `<h2>היסטוריה</h2><div class="hist">${S.history.length?S.history.slice().reverse().slice(0,30).map(w=>{
       const n=w.items.reduce((a,i)=>a+i.sets.length,0), min=w.end?Math.round((new Date(w.end)-new Date(w.start))/60000):0, open=S.openHist===w.id;
-      return `<div class="hrow"><button style="display:contents" data-act="hist" data-id="${w.id}"><span class="d">${dstr(w.start,{weekday:"short",day:"numeric",month:"numeric"})} · ${esc(PLAN[dayOf(w)]?.title||"")}${dayOf(w)!==new Date(w.start).getDay()?` <span class="muted">↔ במקום ${DAYN[dayOf(w)]}</span>`:""}</span><span class="num muted">${n} סטים · ${min} ד׳</span></button>
+      return `<div class="hrow"><button style="display:contents" data-act="hist" data-id="${w.id}"><span class="d">${dstr(w.start,{weekday:"short",day:"numeric",month:"numeric"})} · ${esc(w.pk==="RH"?"שיקום כתף":PLAN[dayOf(w)]?.title||"")}${w.pk!=="RH"&&dayOf(w)!==new Date(w.start).getDay()?` <span class="muted">↔ במקום ${DAYN[dayOf(w)]}</span>`:""}</span><span class="num muted">${n} סטים · ${min} ד׳</span></button>
       ${open?`<div class="hdet">${w.items.filter(i=>i.sets.length).map(i=>`<div class="row between"><span>${esc(EX[i.id].heb)}</span><span class="num">${i.sets.map(s=>(s.kg?fmtKg(s.kg)+"×":"")+s.reps).join("  ")}</span></div>`).join("")}${w.shoulder>=1?`<div>כתף: ${w.shoulder===2?"כואבת":"מאותתת"}</div>`:""}
         ${S.confirmDel===w.id?`<div class="confirm"><button class="btn sm danger" data-act="delyes" data-id="${w.id}">מחק לצמיתות</button><button class="btn sm" data-act="delno">ביטול</button></div>`:`<div class="confirm"><button class="btn sm ghost danger" data-act="del" data-id="${w.id}">מחק אימון</button></div>`}</div>`:""}</div>`}).join(""):`<div class="card muted">עוד אין אימונים שמורים. כל סט שתסמן נשמר מיד.</div>`}</div>
   <h2>חשבון וגיבוי</h2><div class="row" style="flex-wrap:wrap">${store.user?`<button class="btn sm" data-act="logout">התנתק</button>`:`<button class="btn sm primary" data-act="login">התחבר לסנכרון</button>`}<button class="btn sm" data-act="export">העתק JSON</button><button class="btn sm" data-act="dl" ${dlOK?"":"hidden"}>הורד קובץ</button></div>`;
@@ -705,9 +773,9 @@ function drawCharts(){
 /* ---------- Workout mode ---------- */
 function startWorkout(){
   const d=PLAN[S.day], now=new Date().toISOString();
-  S.active={id:"w_"+now.replace(/[^0-9]/g,"").slice(0,14),status:"active",start:now,day:S.day,pk:d.k,swapFrom:S.day!==todayIdx()?todayIdx():null,shoulder:S.shoulder.date===new Date().toDateString()?S.shoulder.level:null,
-    cur:0,items:d.ex.map(p=>{const id=resolveEx(p.id);return {id,plan:p,sets:[]};})};
-  primeDraft(); saveWorkout(S.active); askWake(); render();
+  S.active={id:"w_"+now.replace(/[^0-9]/g,"").slice(0,14),status:"active",start:now,day:S.day,pk:S.rehabOnly?"RH":d.k,swapFrom:S.day!==todayIdx()?todayIdx():null,shoulder:S.shoulder.date===new Date().toDateString()?S.shoulder.level:null,
+    cur:0,items:(S.rehabOnly?REHAB[rehabPhase()].block:dayEx(d)).map(p=>{const id=resolveEx(p.id);return {id,plan:p,sets:[]};})};
+  S.rehabOnly=false; primeDraft(); saveWorkout(S.active); askWake(); render();
 }
 function cur(){ return S.active.items[S.active.cur]; }
 function primeDraft(){
@@ -836,6 +904,8 @@ document.addEventListener("click",e=>{
     case "sh": S.shoulder={date:new Date().toDateString(),level:+b.dataset.v}; lsSet("nf.shoulder",S.shoulder); render(); break;
     case "chk": { const td=new Date().toDateString(); if(S.warm.date!==td) S.warm={date:td,done:[]}; const k=b.dataset.k, i=S.warm.done.indexOf(k); i<0?S.warm.done.push(k):S.warm.done.splice(i,1); lsSet("nf.warm",S.warm); render(); break; }
     case "start": startWorkout(); S.active.open=true; render(); break;
+    case "rehabgo": S.rehabOnly=true; startWorkout(); S.active.open=true; render(); break;
+    case "rehab": { const v=+b.dataset.v; if(v!==rehabPhase()) S.rehab={phase:v,since:new Date().toISOString().slice(0,10)}; lsSet("nf.rehab",S.rehab); put("rehab",S.rehab); render(); break; }
     case "resume": S.active.open=true; if(!S.active.draft) primeDraft(); askWake(); render(); break;
     case "minimize": readInputs(); A.open=false; persistLocal(); render(); break;
     case "how": openHow(b.dataset.id); break;
