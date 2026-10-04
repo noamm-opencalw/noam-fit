@@ -320,6 +320,15 @@ Object.assign(EX,{
     cues:["ידיים על הקיר בגובה הכתפיים","בסוף הדחיפה דחוף עוד קצת: השכמות נפרדות והגב העליון מתעגל קלות","החזק 2 שניות"],errs:["שקיעת הראש קדימה"]},
   wallSlide:{heb:"החלקה על הקיר",en:"Wall Slide",type:"bw",grp:"rehab",vid:YTS("wall slide serratus shoulder rehab"),
     cues:["אמות על הקיר ברוחב כתפיים","החלק למעלה רק בטווח שלא מכאיב","שכמות למטה, החזק שנייה למעלה"],errs:["עלייה לטווח כואב","קשת בגב"]},
+  scapPull:{heb:"משיכות שכמה על המתח",en:"Feet-supported Scapular Pull",type:"bw",grp:"back",vid:YTS("scapular pull up feet supported"),
+    cues:["אחיזה צרה במוט, כפות אליך. רגליים על הרצפה או על כיסא, רק חלק מהמשקל על הידיים","ידיים ישרות. הורד את השכמות למטה ואחורה, הגוף עולה 2–3 ס״מ","החזק 2 שניות, שחרר לאט. בלי לכופף מרפקים"],
+    errs:["כיפוף מרפקים","שחרור מלא לתלייה רפויה"]},
+  negPull:{heb:"עליות מתח שליליות",en:"Negative Chin-up",type:"bw",grp:"back",vid:YTS("negative chin up slow eccentric"),
+    cues:["אחיזה צרה, כפות אליך","קפוץ או עלה מכיסא לנקודה העליונה, סנטר מעל המוט","רד לאט במשך 3–5 שניות עד ידיים כמעט ישרות. שכמות נשארות מהודקות"],
+    errs:["נפילה מהירה בסוף","תלייה רפויה בתחתית"],shoulder:"עצור לפני יישור מלא של הידיים"},
+  chinup:{heb:"עליות מתח באחיזה צרה",en:"Close-grip Chin-up",type:"bw",grp:"back",vid:YTS("close grip chin up form"),
+    cues:["אחיזה צרה מרוחב הכתפיים, כפות אליך. זו האחיזה הידידותית ביותר לכתף","התחל בהורדת השכמות, ואז משוך את המרפקים לצלעות","סנטר מעל המוט, ירידה של 2–3 שניות. אפשר גומייה לעזרה"],
+    errs:["תלייה רפויה בתחתית","נדנוד ובעיטות"],shoulder:"עבור לשליליות או לגומייה עבה יותר",risky:true},
   scaption:{heb:"הרמה במישור השכמה",en:"Scaption to 90°",type:"db",grp:"rehab",vid:YTS("scaption exercise shoulder rehab"),
     cues:["ידיים ב־30° לפני הגוף, אגודלים למעלה","הרם עד גובה הכתף בלבד","ירידה של 3 שניות. משקל קל"],errs:["הרמה מעל הכתף","משיכת כתפיים"]}
 });
@@ -342,6 +351,7 @@ function rehabPhase(){ return S.rehab && S.rehab.phase || 0; }
 function dayEx(d){
   const ph=rehabPhase(); if(!ph || !d.ex.length) return d.ex;
   let list = d.ex.slice();
+  list = list.flatMap(p=> p.id!=="chinup" ? [p] : ph===1 ? [] : ph===2 ? [{...p,id:"scapPull",lo:8,hi:10,rest:60}] : ph===3 ? [{...p,id:"negPull",lo:3,hi:5,rest:120}] : [p]);
   if(ph===1){ const n=list.length; list = list.filter(p=>!SHOULDER_HEAVY.has(p.id)); if(n-list.length>=3 && !list.some(p=>p.id==="bandRow")) list.unshift(P("bandRow",3,12,15,60)); }
   else if(ph===2) list = list.filter(p=>!["fly","bandFly","bandIncline","ohTriceps"].includes(p.id))
       .map(p=>p.id==="lateral"?{...p,id:"scaption"}:["diamond","pushup","declinePush"].includes(p.id)?{...p,id:"serratus",lo:12,hi:15}:p);
@@ -360,7 +370,7 @@ const BASE = {floorPress:{kg:18},fly:{kg:10},curl:{kg:11.5},hammer:{kg:11.5},ohT
 /* ---------- Weekly plan (0 = Sunday) ---------- */
 const PLAN = [
   {k:"A",d:"ראשון",s:"א",title:"חזה + כתפיים",sub:"חזה כבד, חזה עליון, הרחקות, טרייספס",warm:"upper",ex:[P("floorPress",4,6,10,120),P("bandIncline",3,10,15,75),P("fly",3,10,15,75),P("lateral",4,12,20,45),P("kickback",3,10,15,45),P("diamond",2,6,15,60),P("facePull",2,15,20,45)]},
-  {k:"B",d:"שני",s:"ב",title:"גב + בייספס",sub:"משיכה, יציבה וכתף בריאה",warm:"upper",ex:[P("bentRow",4,8,12,120),P("oneArmRow",3,10,12,90),P("rearFly",3,12,15,45),P("facePull",3,15,20,45),P("curl",3,8,12,60),P("hammer",3,10,12,60)]},
+  {k:"B",d:"שני",s:"ב",title:"גב + בייספס",sub:"משיכה, יציבה וכתף בריאה",warm:"upper",ex:[P("chinup",3,4,8,120),P("bentRow",4,8,12,120),P("oneArmRow",3,10,12,90),P("rearFly",3,12,15,45),P("facePull",3,15,20,45),P("curl",3,8,12,60),P("hammer",3,10,12,60)]},
   {k:"C",d:"שלישי",s:"ג",title:"רגליים + בטן",sub:"השרירים הגדולים שורפים הכי הרבה",warm:"lower",ex:[P("gobletSquat",4,10,15,120),P("rdl",4,8,12,120),P("revLunge",3,8,12,90),P("glute",3,12,15,60),P("calf",3,15,20,45),P("deadBug",3,8,12,45),P("legRaise",3,10,15,45)]},
   {k:"D",d:"רביעי",s:"ד",title:"התאוששות פעילה",sub:"8,000 צעדים + ניידות כתף",rest:true,ex:[P("extRot",2,12,15,30),P("facePull",2,15,20,30),P("plank",3,30,45,45)],
     list:["הליכה 8,000 צעדים","מתיחת חזה בפתח דלת 2×30 ש׳","פתיחת כתפיים עם מקל או מגבת ×10","חתול־פרה ×10","מתיחת ירך אחורית 2×30 ש׳"]},
