@@ -698,7 +698,13 @@ function viewToday(){
     html += `<div class="card stack" style="margin-top:16px;border-color:var(--accent)"><div class="row between"><b>אימון פתוח: ${esc(a.pk==="RH"?"שיקום כתף":PLAN[dayOf(a)].title)}</b><span class="pill num">${sets} סטים</span></div><button class="btn primary big" data-act="resume">המשך אימון</button></div>`;
   }
 
-  if(S.day===t) html += protCard();
+  if(S.day===t){
+    const items=S.prot[dkey()]||[], hasWhey=items.some(x=>/whey/i.test(x[0])), hasGainer=items.some(x=>/gainer/i.test(x[0]));
+    const fin=S.history.filter(w=>w.end && w.pk!=="RH" && new Date(w.end).toDateString()===todayStr).at(-1);
+    if(fin && !hasWhey) html += `<div class="card stack" style="margin-top:16px;border-color:var(--good)"><b>סיימת אימון · עכשיו סקופ whey</b><div class="muted" style="font-size:14px">25 גרם חלבון להתאוששות. הגיינר כבר לא נחוץ עכשיו.</div><button class="btn primary" data-act="padd" data-i="0">שתיתי · ‎+25 ג׳</button></div>`;
+    else if(!d.rest && !fin && !S.active) html += `<div class="card stack" style="margin-top:16px"><b>תזמון שייקים</b><div style="font-size:14px">⏱ <b>שעה לפני:</b> סקופ גיינר (אנרגיה) · <b>אחרי:</b> סקופ whey (חלבון)</div>${hasGainer?`<span class="pill up">✓ גיינר נלקח</span>`:`<button class="btn sm" data-act="padd" data-i="1">שתיתי גיינר · ‎+7 ג׳</button>`}</div>`;
+    html += protCard();
+  }
   html += rehabCard(d);
   if(d.rest){
     html += `<h2>היום</h2><div class="card">${(d.list||[]).map((x,i)=>{const k="r"+S.day+"_"+i;const on=S.warm.date===todayStr&&S.warm.done.includes(k);return `<button class="check" role="checkbox" aria-checked="${on}" data-act="chk" data-k="${k}"><span class="box">${on?"✓":""}</span><span>${esc(x)}</span></button>`}).join("")}</div>`;
@@ -905,7 +911,7 @@ function finishWorkout(){
   S.history.push(a); S.active=null; saveWorkout(a); releaseWake();
   const n=a.items.reduce((x,i)=>x+i.sets.length,0), vol=a.items.reduce((x,i)=>x+i.sets.reduce((y,s)=>y+(s.kg||0)*s.reps,0),0);
   const min=Math.round((new Date(a.end)-new Date(a.start))/60000);
-  stopRest(); render(); toast(`נשמר: ${n} סטים · ${min} דק׳ · ${Math.round(vol)} ק״ג נפח`,4000);
+  stopRest(); render(); scrollTo(0,0); toast(`נשמר: ${n} סטים · ${min} דק׳ · עכשיו סקופ whey`,4500);
 }
 
 /* ---------- Rest timer ---------- */
