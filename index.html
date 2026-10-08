@@ -342,7 +342,7 @@ const P = (id,sets,lo,hi,rest)=>({id,sets,lo,hi,rest});
 const REHAB = {
   1:{name:"הרגעה",weeks:"1–2 שבועות",desc:"מורידים עומס מהמפרק בלי להשבית אותו. בלי לחיצות, בלי הרמות ובלי שום דבר מעל גובה הכתף. משיכות ורגליים ממשיכים כרגיל אם לא מכאיב.",
     next:"עוברים לשלב 2 כשאין כאב בלילה, והרמת יד ביום־יום כואבת לכל היותר 2 מ־10.",
-    block:[P("pendulum",2,30,60,20),P("scapSet",2,10,10,30),P("isoER",3,5,5,30),P("isoIR",3,5,5,30),P("isoAbd",2,5,5,30),P("extRot",2,12,15,45)]},
+    block:[P("pendulum",1,45,60,15),P("scapSet",1,10,10,15),P("isoER",1,5,5,15),P("isoIR",1,5,5,15),P("isoAbd",1,5,5,15),P("extRot",2,12,15,30)]},
   2:{name:"חיזוק",weeks:"3–4 שבועות",desc:"בונים את השרירים שמייצבים את המפרק: מסובבים חיצוניים, טרפז תחתון וסראטוס. חוזרות לחיצות על הרצפה באחיזה נייטרלית. הרחקות מוחלפות בהרמה במישור השכמה.",
     next:"עוברים לשלב 3 כשיש טווח מלא בלי כאב, ו־3 סטים של כל תרגיל עוברים בלי שהכאב מתגבר למחרת.",
     block:[P("sideER",3,12,15,45),P("proneYT",3,10,12,45),P("serratus",3,12,15,45),P("wallSlide",2,8,10,30),P("scaption",3,12,15,45),P("facePull",2,15,20,45)]},
@@ -352,7 +352,11 @@ const REHAB = {
 };
 const SHOULDER_HEAVY = new Set(["floorPress","fly","bandPress","bandFly","bandIncline","diamond","pushup","declinePush","ohTriceps","closeGrip","lateral"]);
 function rehabPhase(){ return S.rehab && S.rehab.phase || 0; }
-function dayEx(d){
+function lowEnergy(){ return S.energy && S.energy.date===new Date().toDateString() && S.energy.low; }
+function dayEx(d){ const l=dayExFull(d); if(!lowEnergy()||d.rest) return l;
+  const main=l.filter(p=>!RH_IDS.has(p.id)).slice(0,3).map(p=>({...p,sets:Math.min(p.sets,3)})), rh=l.filter(p=>RH_IDS.has(p.id));
+  return [...main,...rh]; }
+function dayExFull(d){
   const ph=rehabPhase(); if(!ph || !d.ex.length) return d.ex;
   let list = d.ex.slice();
   list = list.filter(p=>p.id!=="negFinish");
@@ -431,6 +435,7 @@ const S = {
   body: mergeBody(lsGet("nf.body",[])),
   active: lsGet("nf.active",null),   // workout in progress
   shoulder: lsGet("nf.shoulder",{date:"",level:null}),
+  energy: lsGet("nf.energy",{date:"",low:false}),
   rehab: Object.assign({phase:1,since:"2026-10-04",log:{}}, lsGet("nf.rehab",{})),
   warm: lsGet("nf.warm",{date:"",done:[]}),
   progEx:"floorPress", bodyM:"fat", prot: lsGet("nf.prot",{}), openHist:null, confirmDel:null
@@ -701,6 +706,10 @@ function viewToday(){
     return html;
   }
 
+  // energy check
+  const late = new Date().getHours()>=21 || (new Date().getHours()===20 && new Date().getMinutes()>=30);
+  html += `<h2>אנרגיה היום</h2><div class="card stack"><div class="chips"><button class="chip" data-act="energy" data-v="0" aria-pressed="${!lowEnergy()}">רגילה</button><button class="chip" data-act="energy" data-v="1" aria-pressed="${!!lowEnergy()}">נמוכה · גרסה קצרה</button></div>
+    ${lowEnergy()?`<div class="banner">גרסה קצרה: 3 התרגילים הראשונים, עד 3 סטים, ותרגילי השיקום. אימון קצר שנעשה עדיף על אימון מלא שלא נעשה.</div>`:late?`<div class="muted" style="font-size:13px">מאוחר. אם אתה עייף, בחר "נמוכה" ותעשה 25 דקות במקום לדלג.</div>`:""}</div>`;
   // shoulder check
   const lv = S.shoulder.date===todayStr ? S.shoulder.level : null;
   html += `<h2>כתף ימין היום</h2><div class="card shoulder stack"><div class="chips">${[["0","בסדר"],["1","מאותתת"],["2","כואב"]].map(([v,l])=>`<button class="chip" data-act="sh" data-v="${v}" aria-pressed="${lv===+v}">${l}</button>`).join("")}</div>
@@ -950,6 +959,7 @@ document.addEventListener("click",e=>{
     case "pain": { const v=+b.dataset.v, k=dk(new Date()); const log={...(S.rehab.log||{})}; if(log[k]===v) delete log[k]; else log[k]=v; setRehab({log}); render(); break; }
     case "rehabnext": { const ph=rehabPhase(); setRehab({phase: ph>=3?0:ph+1, since:new Date().toISOString().slice(0,10)}); toast(ph>=3?"סיימת את השיקום. כל הכבוד":"עברת לשלב "+(ph+1),3000); render(); scrollTo(0,0); break; }
     case "rehabmini": S.rehabOnly="mini"; startWorkout(); S.active.open=true; render(); break;
+    case "energy": S.energy={date:new Date().toDateString(),low:b.dataset.v==="1"}; lsSet("nf.energy",S.energy); render(); break;
     case "rehabgo": S.rehabOnly=true; startWorkout(); S.active.open=true; render(); break;
     case "rehab": { const v=+b.dataset.v; if(v!==rehabPhase()) setRehab({phase:v,since:new Date().toISOString().slice(0,10)}); render(); break; }
     case "resume": S.active.open=true; if(!S.active.draft) primeDraft(); askWake(); render(); break;
