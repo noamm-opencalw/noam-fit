@@ -427,6 +427,60 @@ function mergeBody(arr){ const m={}; BODY_SEED.concat(arr||[]).forEach(x=>m[x.d]
 const PROT_GOAL = 140;
 const FOODS = [["סקופ Dymatize whey",25],["סקופ gainer (50ג׳)",7],["שייק מי גבינה",25],["גביע קוטג׳",27],["2 ביצים",12],["עוף 150 ג׳",45],["קופסת טונה",25],["מעדן חלבון",20],["קישי (מנה)",20]];
 const dkey = () => new Date().toISOString().slice(0,10);
+// protein ideas: [name, portion, protein g, kcal, category, tip]
+const FOOD_IDEAS = [
+  ["יוגורט חלבון","גביע 200 ג׳",20,130,"dairy","יש בכל סופר: PRO, GO ודומים. נוח לעבודה"],
+  ["יוגורט יווני 0%","200 ג׳",20,120,"dairy","עם כפית דבש ופירות יער"],
+  ["משקה חלבון מוכן","בקבוק 340 מ״ל",25,200,"dairy","שוקו חלבון מהמקרר. טוב כשאין זמן"],
+  ["גבינה לבנה 5%","גביע 250 ג׳",22,240,"dairy","על פריכיות או עם ירקות"],
+  ["קוטג׳ 3%","גביע 250 ג׳",27,205,"dairy","קצת פחות שומן מ־5%"],
+  ["גבינה בולגרית 5%","100 ג׳",13,110,"dairy","בסלט או בשקשוקה"],
+  ["גבינה צהובה 9%","2 פרוסות",11,110,"dairy","בכריך או בטוסט"],
+  ["ריקוטה 5%","125 ג׳",13,140,"dairy","מתוקה עם קינמון, או בפסטה"],
+  ["כוס חלב 1%","250 מ״ל",8,100,"dairy","במקום מים בשייק: ‎+8 ג׳"],
+  ["חזה הודו","150 ג׳ מבושל",45,210,"meat","רזה יותר מעוף. טוב בגריל"],
+  ["פילה אמנון / מושט","150 ג׳",33,150,"meat","10 דק׳ בתנור עם לימון. מהיר"],
+  ["סלמון","150 ג׳",32,310,"meat","אומגה 3. טוב גם למפרקים"],
+  ["סרדינים בשמן זית","קופסה מסוננת",20,200,"meat","על לחם מלא. זול ומלא סידן"],
+  ["בקר טחון 5%","150 ג׳ מבושל",38,260,"meat","קציצות או בולונז"],
+  ["סינטה","200 ג׳",52,380,"meat","לארוחת ערב אחרי אימון רגליים"],
+  ["פרגיות","150 ג׳",38,280,"meat","יותר עסיסי מחזה, קצת יותר שומן"],
+  ["כבד עוף","100 ג׳",17,130,"meat","עשיר בברזל וב־B12"],
+  ["פסטרמה הודו","100 ג׳",18,100,"meat","בכריך. שים לב לנתרן"],
+  ["חלבוני ביצה בבקבוק","200 מ״ל",22,100,"eggs","חביתה או לערבב עם 2 ביצים שלמות"],
+  ["3 ביצים","",18,210,"eggs","קשות מראש למקרר, נשנוש מהיר"],
+  ["שקשוקה + בולגרית","2 ביצים + 50 ג׳",19,280,"eggs","ארוחה מלאה בסיר אחד"],
+  ["טופו קשה","150 ג׳",20,180,"plant","מטוגן בסויה ושום, או בתנור"],
+  ["אדממה","150 ג׳ קפוא",17,180,"plant","מיקרוגל 3 דק׳ עם מלח גס"],
+  ["סייטן","100 ג׳",25,120,"plant","מרקם של בשר, הרבה חלבון"],
+  ["עדשים מבושלות","כוס",18,230,"plant","מרק עדשים או מג׳דרה"],
+  ["חומוס גרגרים","כוס מבושל",15,270,"plant","בסלט, או קלוי בתנור כנשנוש"],
+  ["פתיתי סויה","40 ג׳ יבש",20,140,"plant","במקום חצי מהבשר הטחון"],
+  ["ג׳רקי בקר","40 ג׳",16,120,"snack","לתיק או למשרד"],
+  ["חטיף חלבון","חטיף",20,200,"snack","כשאין ברירה. קרא תווית: עדיף מעל 15 ג׳ חלבון"],
+  ["פודינג / מעדן חלבון","גביע",20,150,"snack","קינוח שמכסה חלבון"],
+  ["דייסת שיבולת שועל + whey","40 ג׳ + סקופ",30,270,"snack","ארוחת בוקר לפני יום עמוס"],
+  ["גרעיני דלעת","30 ג׳",9,170,"snack","מגנזיום ואבץ"],
+  ["חמאת בוטנים","2 כפות",8,190,"snack","עם בננה לפני אימון"]
+];
+const FCAT = {all:"הכי יעיל",dairy:"חלב",meat:"בשר ודגים",eggs:"ביצים",plant:"צמחי",snack:"נשנושים"};
+const eff = f => f[2]/f[3]*100;
+function openFoods(cat){
+  const el=$("#sheet"), items=S.prot[dkey()]||[], g=items.reduce((a,x)=>a+x[1],0), left=Math.max(0,PROT_GOAL-g);
+  const known=new Set(FOODS.map(x=>x[0]));
+  const list=FOOD_IDEAS.map((f,i)=>({f,i})).filter(x=>cat==="all"||x.f[4]===cat).sort((a,b)=>eff(b.f)-eff(a.f));
+  el.innerHTML=`<div class="pane" role="dialog" aria-label="רעיונות לחלבון"><div class="grab"></div>
+    <h3>רעיונות לחלבון</h3><div class="muted">${left?`חסרים היום <b class="num">${left}</b> ג׳ ליעד`:"הגעת ליעד היום ✓"} · הקש כדי להוסיף</div>
+    <div class="chips" style="margin:10px 0">${Object.entries(FCAT).map(([k,v])=>`<button class="chip" data-act="foods" data-c="${k}" aria-pressed="${k===cat}">${v}</button>`).join("")}</div>
+    <div class="muted" style="font-size:12px;margin-bottom:6px">ממוין לפי חלבון ל־100 קלוריות. בחיטוב עדיף לבחור מלמעלה</div>
+    <div class="stack">${list.map(({f,i})=>{const e=eff(f), tag=e>=12?`<span class="pill up">יעיל מאוד</span>`:e>=8?`<span class="pill">יעיל</span>`:`<span class="pill down">גם קלוריות</span>`;
+      return `<button class="card" style="text-align:start;display:grid;gap:4px;padding:10px 12px" data-act="fadd" data-i="${i}">
+        <div class="row between"><b>${esc(f[0])}${known.has(f[0])?"":` <span class="muted" style="font-size:12px">· חדש</span>`}</b><b class="num">+${f[2]} ג׳</b></div>
+        <div class="row between" style="font-size:13px"><span class="muted">${esc(f[1])}${f[1]?" · ":""}${f[3]} קק״ל</span>${tag}</div>
+        <div class="muted" style="font-size:13px">${esc(f[5])}</div></button>`}).join("")}</div>
+    <div style="margin-top:12px"><button class="btn primary" style="width:100%" data-act="closesheet">סגור</button></div></div>`;
+  el.hidden=false; S.foodCat=cat;
+}
 
 /* ---------- State ---------- */
 const S = {
@@ -684,7 +738,10 @@ function protCard(){
     <div class="row between"><b class="num" style="font-size:22px">${g} <span class="muted" style="font-size:15px">/ ${PROT_GOAL} ג׳</span></b>${items.length?`<button class="btn sm ghost" data-act="pundo">בטל אחרון</button>`:""}</div>
     <div class="track" style="height:10px"><span class="fill" style="width:${pct}%;${g>=PROT_GOAL?"background:var(--good)":""}"></span></div>
     <div class="chips">${FOODS.map(([n,v],i)=>`<button class="chip" data-act="padd" data-i="${i}">${esc(n)} <span class="num muted">+${v}</span></button>`).join("")}</div>
-    ${items.length?`<div class="muted" style="font-size:13px">${items.map(x=>esc(x[0])).join(" · ")}</div>`:""}</div>`;
+    ${items.length?`<div class="muted" style="font-size:13px">${items.map(x=>esc(x[0])).join(" · ")}</div>`:""}
+    ${g<PROT_GOAL?(()=>{const left=PROT_GOAL-g, sug=FOOD_IDEAS.map((f,i)=>({f,i})).filter(x=>x.f[2]<=left+10).sort((a,b)=>eff(b.f)-eff(a.f)).slice(0,3);
+      return `<div style="font-size:14px"><b>חסרים ${left} ג׳.</b> רעיונות:</div><div class="chips">${sug.map(({f,i})=>`<button class="chip" data-act="fadd" data-i="${i}">${esc(f[0])} <span class="num muted">+${f[2]}</span></button>`).join("")}</div>`})():""}
+    <button class="btn sm ghost" data-act="foods" data-c="all">🍽 עוד רעיונות לחלבון</button></div>`;
 }
 
 function viewToday(){
@@ -984,6 +1041,8 @@ document.addEventListener("click",e=>{
     case "finish": readInputs(); finishWorkout(); break;
     case "rest": rest.end+= +b.dataset.d*1000; rest.total=Math.max(rest.total,(rest.end-Date.now())/1000); tickRest(); break;
     case "skiprest": stopRest(); break;
+    case "foods": openFoods(b.dataset.c||"all"); break;
+    case "fadd": { const k=dkey(), f=FOOD_IDEAS[+b.dataset.i]; (S.prot[k]=S.prot[k]||[]).push([f[0],f[2]]); saveProt(); render(); toast(`נוסף: ${f[0]} · +${f[2]} ג׳`); if(!$("#sheet").hidden) openFoods(S.foodCat||"all"); break; }
     case "padd": { const k=dkey(), fd=FOODS[+b.dataset.i]; (S.prot[k]=S.prot[k]||[]).push([fd[0],fd[1]]); saveProt(); render(); break; }
     case "pundo": { const k=dkey(); (S.prot[k]||[]).pop(); saveProt(); render(); break; }
     case "bm": S.bodyM=b.dataset.k; render(); break;
