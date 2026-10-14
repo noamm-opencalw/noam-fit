@@ -155,7 +155,7 @@ nav.tabs button[aria-current="page"]{color:var(--accent);font-weight:700}
 .set .x{color:var(--muted);font-size:20px;width:36px;height:36px}
 
 /* rest overlay */
-#rest{position:fixed;inset:0;z-index:70;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(6px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px 16px}
+#rest{overflow-y:auto;justify-content:safe center!important;position:fixed;inset:0;z-index:70;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(6px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px 16px}
 .ring{position:relative;width:min(72vw,280px);aspect-ratio:1}
 .ring svg{width:100%;height:100%;transform:rotate(-90deg)}
 .ring .t{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-num);font-size:64px;font-weight:600}
@@ -975,7 +975,8 @@ function logSet(){
   const exDone = it.sets.length>=it.plan.sets, isLast=S.active.cur===S.active.items.length-1;
   if(exDone && isLast){ renderWorkout(); return; }
   const nextName = exDone ? EX[S.active.items[S.active.cur+1].id].heb : `${ex.heb} · סט ${it.sets.length+1}`;
-  startRest(exDone?Math.max(it.plan.rest,90):it.plan.rest, nextName);
+  const upIdx = exDone ? S.active.cur+1 : S.active.cur+1 < S.active.items.length ? S.active.cur+1 : -1;
+  startRest(exDone?Math.max(it.plan.rest,90):it.plan.rest, nextName, upIdx>=0?{idx:upIdx,now:exDone}:null);
   if(exDone){ S.active.cur++; primeDraft(); }
   renderWorkout();
 }
@@ -997,17 +998,29 @@ function finishWorkout(){
 /* ---------- Rest timer ---------- */
 let audio=null;
 function beep(){ try{ audio=audio||new (window.AudioContext||window.webkitAudioContext)(); [0,0.25,0.5].forEach((d,i)=>{const o=audio.createOscillator(),g=audio.createGain();o.frequency.value=i===2?1175:880;g.gain.setValueAtTime(.25,audio.currentTime+d);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+d+.2);o.connect(g).connect(audio.destination);o.start(audio.currentTime+d);o.stop(audio.currentTime+d+.22);}); }catch{} }
-function startRest(sec,next){ rest={end:Date.now()+sec*1000,total:sec,next}; tickRest(); clearInterval(startRest.h); startRest.h=setInterval(tickRest,250); }
+function startRest(sec,next,up){ rest={end:Date.now()+sec*1000,total:sec,next,up,key:Date.now()}; tickRest(); clearInterval(startRest.h); startRest.h=setInterval(tickRest,250); }
 function stopRest(){ rest=null; clearInterval(startRest.h); $("#rest").hidden=true; }
 function tickRest(){
   const el=$("#rest"); if(!rest){ el.hidden=true; return; }
   const left=Math.max(0,Math.ceil((rest.end-Date.now())/1000));
   if(left<=0){ beep(); try{navigator.vibrate&&navigator.vibrate([200,100,200]);}catch{} stopRest(); toast("יאללה, סט הבא"); return; }
-  const C=2*Math.PI*45, frac=left/rest.total;
+  const C=2*Math.PI*45, frac=Math.min(1,left/rest.total);
   el.hidden=false;
+  if(el.dataset.k==String(rest.key)+"_"+rest.total){ const p=el.querySelector("circle.p"), t=el.querySelector(".ring .t"); if(p) p.setAttribute("stroke-dashoffset",C*(1-frac)); if(t) t.textContent=`${Math.floor(left/60)}:${String(left%60).padStart(2,"0")}`; return; }
+  el.dataset.k=String(rest.key)+"_"+rest.total;
+  let upHtml="";
+  if(rest.up && S.active){ const it=S.active.items[rest.up.idx]; if(it){ const ex=EX[it.id], r=recommend(it.id,it.plan);
+    const load = ex.type==="db" ? `${fmtKg(r.kg)} ק״ג` : ex.type==="band" ? r.band : `${r.reps} ${unitOf(ex)}`;
+    upHtml=`<div class="card stack" style="width:100%;max-width:420px;text-align:start;max-height:42vh;overflow-y:auto">
+      <div class="row between"><b>${rest.up.now?"התרגיל הבא":"אחרי התרגיל הזה"}: ${esc(ex.heb)}</b><span class="pill num">${it.plan.sets}×${it.plan.lo}–${it.plan.hi} · ${esc(load)}</span></div>
+      ${ex.img?`<img src="${IMG[ex.img]}" alt="" style="width:100%;border-radius:12px;max-height:140px;object-fit:cover">`:""}
+      <ol style="margin:0;padding-inline-start:20px;font-size:14px">${ex.cues.map(c=>`<li>${esc(c)}</li>`).join("")}</ol>
+      ${ex.errs&&ex.errs.length?`<div class="muted" style="font-size:13px">להימנע: ${ex.errs.map(esc).join(" · ")}</div>`:""}
+      <div class="row"><a class="btn sm" style="flex:1;text-decoration:none" href="${ex.vid}" target="_blank" rel="noopener">▶ סרטון</a><button class="btn sm" style="flex:1" data-act="how" data-id="${it.id}">פרטים מלאים</button></div></div>`; } }
   el.innerHTML=`<div class="muted" style="letter-spacing:.08em;font-weight:700">מנוחה</div>
    <div class="ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="var(--line)" stroke-width="6"/><circle class="p" cx="50" cy="50" r="45" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-frac)}"/></svg><div class="t">${Math.floor(left/60)}:${String(left%60).padStart(2,"0")}</div></div>
    <div class="rest-next"><span class="muted">הבא</span><b>${esc(rest.next)}</b></div>
+   ${upHtml}
    <div class="rest-actions"><button class="btn" data-act="rest" data-d="-15">−15</button><button class="btn" data-act="rest" data-d="15">+15</button><button class="btn primary" data-act="skiprest">דלג</button></div>`;
 }
 
