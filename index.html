@@ -345,15 +345,17 @@ const REHAB = {
     block:[P("pendulum",1,45,60,15),P("scapSet",1,10,10,15),P("isoER",1,5,5,15),P("isoIR",1,5,5,15),P("isoAbd",1,5,5,15),P("extRot",2,12,15,30)]},
   2:{name:"חיזוק",weeks:"3–4 שבועות",desc:"בונים את השרירים שמייצבים את המפרק: מסובבים חיצוניים, טרפז תחתון וסראטוס. חוזרות לחיצות על הרצפה באחיזה נייטרלית. הרחקות מוחלפות בהרמה במישור השכמה.",
     next:"עוברים לשלב 3 כשיש טווח מלא בלי כאב, ו־3 סטים של כל תרגיל עוברים בלי שהכאב מתגבר למחרת.",
-    block:[P("sideER",3,12,15,45),P("proneYT",3,10,12,45),P("serratus",3,12,15,45),P("wallSlide",2,8,10,30),P("scaption",3,12,15,45),P("facePull",2,15,20,45)]},
+    block:[P("sideER",2,12,15,30),P("proneYT",2,10,12,30),P("serratus",2,12,15,30),P("wallSlide",1,8,10,30),P("scaption",2,12,15,30),P("facePull",2,15,20,30)]},
   3:{name:"חזרה הדרגתית",weeks:"2–3 שבועות",desc:"התוכנית המלאה חוזרת, במצב זהירות של הכתף (אחיזה נייטרלית, מרפקים 45°, הרחקות עד גובה הכתף). תרגילי הייצוב נשארים כחימום בכל אימון עליון.",
     next:"מסיימים את השיקום כשכל התוכנית רצה שבועיים בלי החמרה. את הייצוב משאירים פעמיים בשבוע.",
     block:[P("sideER",2,12,15,30),P("proneYT",2,10,12,30),P("serratus",2,12,15,30)]}
 };
 const SHOULDER_HEAVY = new Set(["floorPress","fly","bandPress","bandFly","bandIncline","diamond","pushup","declinePush","ohTriceps","closeGrip","lateral"]);
 function rehabPhase(){ return S.rehab && S.rehab.phase || 0; }
+function comebackWeek(){ const c=S.comeback; if(!c||!c.since) return 0; const dd=Math.floor((new Date().setHours(0,0,0,0)-new Date(c.since).setHours(0,0,0,0))/864e5); return dd<0?0:dd<7?1:dd<14?2:0; }
+const CORE_DAYS = ["A","C","F"];
 function lowEnergy(){ return S.energy && S.energy.date===new Date().toDateString() && S.energy.low; }
-function dayEx(d){ const l=dayExFull(d); if(!lowEnergy()||d.rest) return l;
+function dayEx(d){ let l=dayExFull(d); if(comebackWeek()===1 && !d.rest) l=l.map(p=>p.rh?p:{...p,sets:Math.max(2,p.sets-1)}); if(!lowEnergy()||d.rest) return l;
   const main=l.filter(p=>!RH_IDS.has(p.id)).slice(0,3).map(p=>({...p,sets:Math.min(p.sets,3)})), rh=l.filter(p=>RH_IDS.has(p.id));
   return [...main,...rh]; }
 function dayExFull(d){
@@ -366,8 +368,9 @@ function dayExFull(d){
       .map(p=>p.id==="lateral"?{...p,id:"scaption"}:["diamond","pushup","declinePush"].includes(p.id)?{...p,id:"serratus",lo:12,hi:15}:p);
   if(d.rest) return list;
   const have=new Set(list.map(p=>p.id));
-  const block=REHAB[ph].block.filter(p=>!have.has(p.id));
-  return ph===3 ? (d.warm==="upper" ? [...block,...list] : list) : [...list,...block];
+  const block=REHAB[ph].block.filter(p=>!have.has(p.id)).map(p=>({...p,rh:true}));
+  if(ph>=2 && d.warm!=="upper" && d.k!=="F") return list;
+  return ph===3 ? [...block,...list] : [...list,...block];
 }
 const GRP = {rehab:"שיקום כתף",chest:"חזה",side:"כתפיים",back:"גב",rear:"כתף אחורית",legs:"רגליים",biceps:"בייספס",triceps:"טרייספס",core:"ליבה"};
 const GRP_TARGET = {rehab:[6,40],chest:[14,24],side:[8,16],back:[10,20],rear:[6,12],legs:[10,20],biceps:[6,12],triceps:[6,12],core:[6,12]};
@@ -491,6 +494,7 @@ const S = {
   active: lsGet("nf.active",null),   // workout in progress
   shoulder: lsGet("nf.shoulder",{date:"",level:null}),
   energy: lsGet("nf.energy",{date:"",low:false}),
+  comeback: lsGet("nf.comeback",{since:"2026-10-14"}),
   rehab: Object.assign({phase:1,since:"2026-10-04",log:{}}, lsGet("nf.rehab",{})),
   warm: lsGet("nf.warm",{date:"",done:[]}),
   progEx:"floorPress", bodyM:"fat", prot: lsGet("nf.prot",{}), openHist:null, confirmDel:null
@@ -535,6 +539,7 @@ async function pull(){
   const pend=store.outbox, ws=[]; let body=null, act=null, prot=null;
   data.forEach(({id,data:v})=>{ if(id in pend) return;
     if(id==="protein") prot=v.days||{}; else if(id==="body") body=v.entries;
+    else if(id==="comeback"){ S.comeback=v; lsSet("nf.comeback",v); }
     else if(id==="rehab"){ S.rehab={...S.rehab,...v,log:{...(S.rehab.log||{}),...(v.log||{})}}; lsSet("nf.rehab",S.rehab); }
     else if(id.startsWith("w_")){ if(v.status==="done") ws.push(v); else act=v; } });
   // keep local-only and pending items
@@ -614,6 +619,15 @@ function shoulderSore(){ return shLevel()>=2; }
 function resolveEx(id){ const ex=EX[id]; if(shLevel()>=1 && ex.alt) return ex.alt; return id; }
 
 function recommend(id, plan){
+  const r=recommend0(id,plan), cw=comebackWeek(), ex=EX[id];
+  if(cw && ex.type==="db" && r.kg){
+    const last=lastSessions(id,1)[0], since=new Date(S.comeback.since).setHours(0,0,0,0);
+    if(cw===1){ if(!last || new Date(last.date)<since){ r.kg=stepKg(r.kg,-1); } r.reps=plan.lo; r.why=`<b>שבוע חזרה:</b> משקולת אחת קלה יותר, 2–3 חזרות ברזרבה. בלי כישלון`; }
+    else if(cw===2 && last && new Date(last.date)<since+7*864e5 && new Date(last.date)>=since){ r.kg=stepKg(snapKg(Math.max(...last.sets.map(x=>x.kg||0))),1); r.why=`<b>שבוע חזרה 2:</b> חוזרים למשקל הרגיל`; }
+  } else if(cw===1 && !RH_IDS.has(id)) { r.why=`<b>שבוע חזרה:</b> עצור כשנשארות 2–3 חזרות. ${r.why}`; }
+  return r;
+}
+function recommend0(id, plan){
   const ex=EX[id], hist=lastSessions(id,2), last=hist[0];
   let r={kg:null,band:null,reps:plan.lo,why:""};
   if(ex.type==="band") r.band = ex.assist ? (last && ASSIST.includes(last.sets.at(-1).band) ? last.sets.at(-1).band : ASSIST[0]) : last ? (last.sets.at(-1).band||BANDS[1]) : (id==="pullApart"?BANDS[2]:id==="extRot"||id==="bandFly"?BANDS[0]:BANDS[1]);
@@ -770,6 +784,14 @@ function viewToday(){
     return html;
   }
 
+  // comeback banner
+  const cw=comebackWeek();
+  if(cw && !d.rest){ const core=CORE_DAYS.includes(d.k);
+    html += `<h2>מצב חזרה · שבוע ${cw} מתוך 2</h2><div class="card stack" style="border-color:var(--accent)">
+      <div>${cw===1?"סט אחד פחות בכל תרגיל, משקולת אחת קלה יותר, ו־2–3 חזרות ברזרבה. המטרה היא להחזיר את הגוף לשגרה, לא לשבור שיאים.":"מספר סטים מלא וחזרה למשקלים הרגילים. עדיין בלי סטים עד כישלון."}</div>
+      <div style="font-size:14px"><b>יעד מינימום: 3 אימונים בשבוע</b> · ראשון, שלישי, שבת. שני וחמישי הם בונוס, רק אחרי לילה של 7 שעות.</div>
+      <span class="pill ${core?"up":""}" style="justify-self:start">${core?"היום יום ליבה":"היום יום בונוס"}</span>
+      <button class="btn sm ghost" data-act="comeback" data-v="0">כבה מצב חזרה</button></div>`; }
   // energy check
   const late = new Date().getHours()>=21 || (new Date().getHours()===20 && new Date().getMinutes()>=30);
   html += `<h2>אנרגיה היום</h2><div class="card stack"><div class="chips"><button class="chip" data-act="energy" data-v="0" aria-pressed="${!lowEnergy()}">רגילה</button><button class="chip" data-act="energy" data-v="1" aria-pressed="${!!lowEnergy()}">נמוכה · גרסה קצרה</button></div>
@@ -1023,6 +1045,7 @@ document.addEventListener("click",e=>{
     case "pain": { const v=+b.dataset.v, k=dk(new Date()); const log={...(S.rehab.log||{})}; if(log[k]===v) delete log[k]; else log[k]=v; setRehab({log}); render(); break; }
     case "rehabnext": { const ph=rehabPhase(); setRehab({phase: ph>=3?0:ph+1, since:new Date().toISOString().slice(0,10)}); toast(ph>=3?"סיימת את השיקום. כל הכבוד":"עברת לשלב "+(ph+1),3000); render(); scrollTo(0,0); break; }
     case "rehabmini": S.rehabOnly="mini"; startWorkout(); S.active.open=true; render(); break;
+    case "comeback": S.comeback = b.dataset.v==="1" ? {since:new Date().toISOString().slice(0,10)} : {since:null}; lsSet("nf.comeback",S.comeback); put("comeback",S.comeback); render(); break;
     case "energy": S.energy={date:new Date().toDateString(),low:b.dataset.v==="1"}; lsSet("nf.energy",S.energy); render(); break;
     case "rehabgo": S.rehabOnly=true; startWorkout(); S.active.open=true; render(); break;
     case "rehab": { const v=+b.dataset.v; if(v!==rehabPhase()) setRehab({phase:v,since:new Date().toISOString().slice(0,10)}); render(); break; }
