@@ -992,18 +992,33 @@ function finishWorkout(){
   S.history.push(a); S.active=null; saveWorkout(a); releaseWake();
   const n=a.items.reduce((x,i)=>x+i.sets.length,0), vol=a.items.reduce((x,i)=>x+i.sets.reduce((y,s)=>y+(s.kg||0)*s.reps,0),0);
   const min=Math.round((new Date(a.end)-new Date(a.start))/60000);
-  stopRest(); render(); scrollTo(0,0); toast(`נשמר: ${n} סטים · ${min} דק׳ · עכשיו סקופ whey`,4500);
+  stopRest(); victory(); render(); scrollTo(0,0); toast(`🏆 נשמר: ${n} סטים · ${min} דק׳ · עכשיו סקופ whey`,4500);
 }
 
 /* ---------- Rest timer ---------- */
 let audio=null;
-function beep(){ try{ audio=audio||new (window.AudioContext||window.webkitAudioContext)(); [0,0.25,0.5].forEach((d,i)=>{const o=audio.createOscillator(),g=audio.createGain();o.frequency.value=i===2?1175:880;g.gain.setValueAtTime(.25,audio.currentTime+d);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+d+.2);o.connect(g).connect(audio.destination);o.start(audio.currentTime+d);o.stop(audio.currentTime+d+.22);}); }catch{} }
-function startRest(sec,next,up){ rest={end:Date.now()+sec*1000,total:sec,next,up,key:Date.now()}; tickRest(); clearInterval(startRest.h); startRest.h=setInterval(tickRest,250); }
-function stopRest(){ rest=null; clearInterval(startRest.h); $("#rest").hidden=true; }
+/* ---------- Sound ---------- */
+function ac(){ try{ audio=audio||new (window.AudioContext||window.webkitAudioContext)(); if(audio.state==="suspended") audio.resume(); }catch{} return audio; }
+// iOS: audio must be unlocked by a user gesture
+document.addEventListener("pointerdown",()=>{ const a=ac(); if(a && !ac.unlocked){ try{ const b=a.createBuffer(1,1,22050), s=a.createBufferSource(); s.buffer=b; s.connect(a.destination); s.start(0); ac.unlocked=true; }catch{} } },{passive:true});
+function tone(freq,at,dur,vol=.3,type="sine"){ const a=ac(); if(!a) return null; const o=a.createOscillator(), g=a.createGain(); o.type=type; o.frequency.value=freq;
+  g.gain.setValueAtTime(0,at); g.gain.linearRampToValueAtTime(vol,at+.01); g.gain.exponentialRampToValueAtTime(.001,at+dur);
+  o.connect(g).connect(a.destination); o.start(at); o.stop(at+dur+.02); return o; }
+// end-of-rest: 3 soft ticks (3,2,1) + strong double beep, scheduled ahead so it fires even if timers are throttled
+let restNodes=[];
+function scheduleRestSound(secLeft){ restNodes.forEach(o=>{try{o.stop();}catch{}}); restNodes=[]; const a=ac(); if(!a||secLeft<=0) return; const t0=a.currentTime+secLeft;
+  [3,2,1].forEach(k=>{ if(secLeft>k) restNodes.push(tone(660,t0-k,.12,.18)); });
+  restNodes.push(tone(988,t0,.25,.4,"square"), tone(1319,t0+.28,.4,.4,"square")); restNodes=restNodes.filter(Boolean); }
+function beep(){ const a=ac(); if(!a) return; const t=a.currentTime; tone(988,t,.25,.4,"square"); tone(1319,t+.28,.4,.4,"square"); }
+function victory(){ const a=ac(); if(!a) return; const t=a.currentTime+.05;
+  [[523,0,.18],[659,.18,.18],[784,.36,.18],[1047,.54,.5],[784,.78,.14],[1047,.92,.8]].forEach(([f,d,l])=>{ tone(f,t+d,l,.32,"triangle"); tone(f*2,t+d,l,.08,"sine"); });
+  try{navigator.vibrate&&navigator.vibrate([100,60,100,60,300]);}catch{} }
+function startRest(sec,next,up){ rest={end:Date.now()+sec*1000,total:sec,next,up,key:Date.now()}; scheduleRestSound(sec); tickRest(); clearInterval(startRest.h); startRest.h=setInterval(tickRest,250); }
+function stopRest(){ rest=null; clearInterval(startRest.h); restNodes.forEach(o=>{try{o.stop();}catch{}}); restNodes=[]; $("#rest").hidden=true; }
 function tickRest(){
   const el=$("#rest"); if(!rest){ el.hidden=true; return; }
   const left=Math.max(0,Math.ceil((rest.end-Date.now())/1000));
-  if(left<=0){ beep(); try{navigator.vibrate&&navigator.vibrate([200,100,200]);}catch{} stopRest(); toast("יאללה, סט הבא"); return; }
+  if(left<=0){ const played=restNodes.length>0; if(!played) beep(); try{navigator.vibrate&&navigator.vibrate([200,100,200]);}catch{} restNodes=[]; stopRest(); toast("יאללה, סט הבא"); return; }
   const C=2*Math.PI*45, frac=Math.min(1,left/rest.total);
   el.hidden=false;
   if(el.dataset.k==String(rest.key)+"_"+rest.total){ const p=el.querySelector("circle.p"), t=el.querySelector(".ring .t"); if(p) p.setAttribute("stroke-dashoffset",C*(1-frac)); if(t) t.textContent=`${Math.floor(left/60)}:${String(left%60).padStart(2,"0")}`; return; }
@@ -1076,7 +1091,7 @@ document.addEventListener("click",e=>{
     case "prev": readInputs(); if(A.cur>0){A.cur--; primeDraft(); renderWorkout();} break;
     case "swap": { const it=cur(); it.id=b.dataset.id; it.sets=[]; primeDraft(); saveWorkout(A); renderWorkout(); break; }
     case "finish": readInputs(); finishWorkout(); break;
-    case "rest": rest.end+= +b.dataset.d*1000; rest.total=Math.max(rest.total,(rest.end-Date.now())/1000); tickRest(); break;
+    case "rest": rest.end+= +b.dataset.d*1000; scheduleRestSound((rest.end-Date.now())/1000); rest.total=Math.max(rest.total,(rest.end-Date.now())/1000); tickRest(); break;
     case "skiprest": stopRest(); break;
     case "foods": openFoods(b.dataset.c||"all"); break;
     case "fadd": { const k=dkey(), f=FOOD_IDEAS[+b.dataset.i]; (S.prot[k]=S.prot[k]||[]).push([f[0],f[2]]); saveProt(); render(); toast(`נוסף: ${f[0]} · +${f[2]} ג׳`); if(!$("#sheet").hidden) openFoods(S.foodCat||"all"); break; }
